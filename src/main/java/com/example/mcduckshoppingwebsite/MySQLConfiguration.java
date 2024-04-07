@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 @ComponentScan("com.example.mcduckshoppingwebsite")
 public class MySQLConfiguration {
 
+    // TODO: 等链接到docker之后，这个要做出相应的改变
     @Value("${spring.datasource.url}")
     private String dbUrl;
 

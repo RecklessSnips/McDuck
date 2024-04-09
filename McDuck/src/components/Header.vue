@@ -3,6 +3,10 @@
   <div class="row mx-1 mt-2">
     <!-- 左边按钮和Logo -->
     <div class="col-sm-3">
+      <!-- TODO: 可以用 Accordition 解决分类的问题: https://primevue.org/accordion/ -->
+      <!-- TODO: 物品分类，细分，可以参考：
+        https://primevue.org/megamenu/
+        https://primevue.org/tieredmenu/ -->
       <Sidebar v-model:visible="visible" header="McDuck">
         <!-- Header 额外的信息：这个template作为插槽，
             是跟这个关闭button一起写，相当于内嵌 -->
@@ -223,20 +227,20 @@
         </template>
         <div class="d-flex flex-column align-items-start">
           <!-- TODO: 完成router的跳跃，还有各种种类 -->
-          <div><a href="#">Recommanded Stores</a></div>
-          <div><a href="#">Other catagories</a></div>
+          <div @click="hideSiderbar"><RouterLink to="/store">Recommanded Stores</RouterLink></div>
+          <div @click="hideSiderbar"><RouterLink to="/home">Home</RouterLink></div>
         </div>
       </Sidebar>
       <!-- 到时加一个 icon="pi pi-arrow-right"， 换一个 Icon -->
-      <div class="d-flex justify-content-around align-items-center">
+      <div class="d-flex justify-content-start align-items-center">
         <Button
           type="button"
           icon="pi pi-bars"
-          class="bars p-button-rounded"
+          class="bars p-button-rounded ms-4"
           @click="visible = true"
         ></Button>
         <!-- TODO 图标返回首页 -->
-        <a href="#" style="text-decoration: none">
+        <span @click="goHome" class="homeIcon ms-5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -446,18 +450,20 @@
               </g>
             </g>
           </svg>
-        </a>
+        </span>
       </div>
     </div>
     <!-- 搜索框 -->
-    <div class="col-sm-5 bg-danger d-flex justify-content-center align-items-center">
+    <div class="col-sm-6 bg-danger d-flex justify-content-center align-items-center">
       <IconField>
-        <InputText type="text" id="search"></InputText>
+        <InputText type="text" id="search" class="searchBox"></InputText>
         <InputIcon class="pi pi-search"></InputIcon>
       </IconField>
     </div>
     <!-- 通知小铃铛和用户信息 -->
-    <div class="col-sm-4 bg-info d-flex justify-content-end align-items-center">
+    <div class="col-sm-3 bg-info d-flex justify-content-end align-items-center">
+      <!-- 登陆 -->
+      <button class="btn btn-warning me-3" @click="login">Sign in</button>
       <!-- 小铃铛 -->
       <button type="button" class="bell btn btn-outline position-relative" @click="toggleBell">
         <FontAwesomeIcon v-badge="2" :icon="['far', 'bell']" class="fa-2xl" />
@@ -468,6 +474,7 @@
         </span>
       </button>
       <OverlayPanel ref="bell">
+        <!-- TODO: 可以用 Accordition 解决分类的问题: https://primevue.org/accordion/ -->
         <p>Mesage 1</p>
         <Divider />
         <p>Mesage 2</p>
@@ -480,7 +487,16 @@
       </OverlayPanel>
       <!-- TODO: 将label改成动态的 -->
       <Button
+        class="btn btn-success"
         label="Hi Ahsoka"
+        :pt="{
+          icon: {
+            style: 'margin-left: 0'
+          },
+          label: {
+            style: 'margin-left: 5px'
+          }
+        }"
         iconPos="right"
         type="button"
         icon="pi pi-shopping-bag"
@@ -530,8 +546,23 @@ export default {
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+
+const router = useRouter()
 
 let visible = ref(false)
+
+const hideSiderbar = () => {
+  visible.value = !visible
+}
+
+const goHome = () => {
+  router.push('/')
+}
+
+const login = () => {
+  router.push('/login')
+}
 
 const bell = ref()
 const toggleBell = (event: MouseEvent) => {
@@ -557,5 +588,12 @@ const toggle = (event: MouseEvent) => {
   padding: 0;
   margin-right: 20px;
   border-radius: 50%;
+}
+.homeIcon {
+  cursor: pointer;
+}
+
+.searchBox {
+  width: 30vw;
 }
 </style>

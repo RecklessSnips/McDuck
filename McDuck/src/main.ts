@@ -9,6 +9,8 @@ library.add(far)
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import router from './router'
+
 import PrimeVue from 'primevue/config'
 import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
@@ -22,6 +24,16 @@ import BadgeDirective from 'primevue/badgedirective'
 import SplitButton from 'primevue/splitbutton'
 import OverlayPanel from 'primevue/overlaypanel'
 import Divider from 'primevue/divider'
+import Accordion from 'primevue/accordion'
+import AccordionTab from 'primevue/accordiontab'
+import Toolbar from 'primevue/toolbar'
+import CascadeSelect from 'primevue/cascadeselect'
+import Dropdown from 'primevue/dropdown'
+import InputSwitch from 'primevue/inputswitch'
+import Slider from 'primevue/slider'
+import Password from 'primevue/password'
+import InputGroup from 'primevue/inputgroup'
+import InputGroupAddon from 'primevue/inputgroupaddon'
 
 import App from './App.vue'
 
@@ -30,6 +42,7 @@ import 'primevue/resources/themes/aura-light-green/theme.css'
 const app = createApp(App)
 
 app.use(PrimeVue)
+app.use(router)
 app.use(createPinia())
 
 // Register FontAwesomeIcon component globally
@@ -45,6 +58,16 @@ app.component('InputText', InputText)
 app.component('SplitButton', SplitButton)
 app.component('OverlayPanel', OverlayPanel)
 app.component('Divider', Divider)
+app.component('Accordion', Accordion)
+app.component('AccordionTab', AccordionTab)
+app.component('Toolbar', Toolbar)
+app.component('CascadeSelect', CascadeSelect)
+app.component('Dropdown', Dropdown)
+app.component('InputSwitch', InputSwitch)
+app.component('Slider', Slider)
+app.component('Password', Password)
+app.component('InputGroup', InputGroup)
+app.component('InputGroupAddon', InputGroupAddon)
 
 app.directive('badge', BadgeDirective)
 

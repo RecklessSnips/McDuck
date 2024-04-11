@@ -551,83 +551,16 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, reactive, onBeforeMount, watch } from 'vue'
+import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
+
+// Hook
+import useCurrentUser from '@/hooks/useCurrentUser'
+
 const URL = 'http://localhost:8080'
 const router = useRouter()
 
-let visible = ref(false)
-let isLogin = ref(false)
-let username = ref(null)
-let currentUser = reactive({
-  nickName: null,
-  password: null,
-  firstName: null,
-  lastName: null,
-  fullName: null,
-  address: null,
-  phoneNumber: null,
-  email: null,
-  creditCard: null,
-  balance: null,
-  registeredTime: null
-})
-
-// let greeting = ref<string | null>(null)
-let greeting = ref<string>('Hi User')
-
-watch(isLogin, (newV: boolean, old: boolean) => {
-  console.log('New status: ' + newV)
-  console.log('Origional status: ' + old)
-  // if(newV == false)
-})
-
-onBeforeMount(() => {
-  checkLoginStatus()
-})
-
-const checkLoginStatus = async () => {
-  isLogin.value = await checkSession()
-  if (!isLogin.value) {
-    // Optionally, redirect to login page or show login form
-    console.log('Session expired or not found. Please login.')
-  }
-}
-
-async function checkSession() {
-  try {
-    const response = await fetch(`${URL}/api/validate-session`, {
-      method: 'GET',
-      credentials: 'include' // Ensures cookies are sent and received with the request
-    })
-    if (response.ok) {
-      const loggedin = await response.json() // Safely parse JSON response
-      console.log('User if loggedin: ' + loggedin)
-      if (loggedin) {
-        const userResponse = await fetch(`${URL}/api/get-user-session`, {
-          method: 'GET',
-          credentials: 'include'
-        })
-        const user = await userResponse.json()
-        console.log('User: ' + user)
-        username.value = user.nickName
-        console.log('Username: ' + username)
-        Object.assign(currentUser, user)
-        console.log('Current User: ' + currentUser)
-        greeting.value = 'Hi ' + username.value
-        return true
-      } else {
-        return false
-      }
-    } else {
-      console.log('User not login yet!!!')
-      return false // Session is invalid or expired
-    }
-  } catch (error) {
-    console.error('Error checking session:', error)
-    return false // In case of any error, consider the session invalid
-  }
-}
+const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
 
 const hideSiderbar = () => {
   visible.value = !visible
@@ -657,7 +590,6 @@ const signOut = () => {
       console.log('If successfully logout: ' + ifLogout)
       isLogin.value = false
       greeting.value = 'Hi User'
-      // location.reload()
       router.push('/home')
     })
     .catch((error) => {
@@ -680,7 +612,7 @@ const toggle = (event: MouseEvent) => {
 .bars {
   width: 2.5rem;
   height: 2.5rem;
-  padding: 0; /* Removes padding to help center the icon */
+  padding: 0;
   border-radius: 50%;
 }
 .bell {
@@ -703,6 +635,6 @@ const toggle = (event: MouseEvent) => {
 }
 
 .hover-effect-div:hover {
-  background-color: #e2c8a7; /* Change as needed */
+  background-color: #e2c8a7;
 }
 </style>

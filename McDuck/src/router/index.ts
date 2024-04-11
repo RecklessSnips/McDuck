@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/pages/Home.vue'
-import Header from '@/components/Header.vue'
 import Store from '@/pages/Store.vue'
 import Deal from '@/pages/Product/Deal.vue'
 import TopStore from '@/pages/Product/TopStore.vue'
@@ -8,6 +7,7 @@ import Rate from '@/pages/Product/Rate.vue'
 import Condition from '@/pages/Product/Condition.vue'
 import Status from '@/pages/Product/Status.vue'
 import Login from '@/components/Login.vue'
+import Register from '@/components/Register.vue'
 
 const router = createRouter({
   // 路由工作模式
@@ -45,6 +45,12 @@ const router = createRouter({
       name: 'login',
       path: '/login',
       component: Login,
+      meta: { requiresHeader: false }
+    },
+    {
+      name: 'register',
+      path: '/register',
+      component: Register,
       meta: { requiresHeader: false }
     },
     {

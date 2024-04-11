@@ -1,6 +1,8 @@
 <!-- 个人或者别的商家的店铺页面 -->
 <template>
-  <div class="bg-warning">"You made it!"</div>
+  <div class="mx-5 mt-3">
+    <div class="bg-warning">"You made it!"</div>
+  </div>
 </template>
 
 <script>

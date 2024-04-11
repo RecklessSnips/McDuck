@@ -215,54 +215,74 @@
     </span>
   </div>
   <Button class="btn btn-outline-success" label="Back" icon="pi pi-arrow-left" @click="back" />
-  <div class="d-flex flex-column justify-content-center" style="background-color:; height: 70vh">
-    <div>
-      <h1 class="text-center">A penny saved is a penny earned</h1>
+  <div
+    class="d-flex flex-column justify-content-center align-items-center"
+    style="background-color:; height: 70vh"
+  >
+    <div class="mt-3">
+      <h1 class="text-center">Start your business journey with us!</h1>
+      <h5 class="text-center">I made it by being</h5>
+      <h5 class="text-center">Tougher than the Toughies</h5>
+      <h5 class="text-center">Smarter than the Smarties</h5>
+      <h5 class="text-center">And I made it square!</h5>
     </div>
-    <div class="d-flex justify-content-center align-items-center" style="height: 50vh; width: 98vw">
+    <div
+      class="d-flex justify-content-center align-items-start mt-3"
+      style="height: 50vh; width: 90vw"
+    >
       <!-- 这个div是为了保持d-flex的形状 -->
       <div>
-        <div class="mt-5">
-          <InputGroup>
-            <InputGroupAddon>
-              <i class="pi pi-user"></i>
-            </InputGroupAddon>
-            <InputText v-model="email" inputId="email" placeholder="Email" />
-          </InputGroup>
-        </div>
-
-        <div class="mt-4">
-          <InputGroup>
-            <InputGroupAddon>
-              <i class="pi pi-lock"></i>
-            </InputGroupAddon>
-            <Password v-model="password" :feedback="false" placeholder="Password" toggleMask />
-          </InputGroup>
-        </div>
-
-        <div class="d-flex justify-content-center mt-4">
-          <Button
-            label="Login"
-            icon="pi pi-user"
-            severity="success"
-            class="btn btn-outline-success"
-            @click="validateUser"
-          ></Button>
-        </div>
-      </div>
-
-      <div class="w-full md:w-2">
-        <Divider layout="vertical" class="divider hidden md:flex"><span>OR</span></Divider>
-      </div>
-
-      <div class="w-full md:w-5 flex align-items-center justify-content-center py-5">
-        <Button
-          label="Sign Up"
-          icon="pi pi-user-plus"
-          severity="success"
-          class="btn btn-outline-primary"
-          @click="register"
-        ></Button>
+        <form>
+          <div class="mt-2 mb-4">
+            <FloatLabel>
+              <InputText
+                id="username"
+                v-model="username"
+                size="small"
+                type="text"
+                variant="filled"
+                :pt="{
+                  root: {
+                    style: 'width: 234px'
+                  }
+                }"
+              />
+              <label for="username">Username</label>
+            </FloatLabel>
+          </div>
+          <div class="mt-2 mb-4">
+            <FloatLabel>
+              <InputText
+                id="email"
+                v-model="email"
+                size="small"
+                type="text"
+                variant="filled"
+                :pt="{
+                  root: {
+                    style: 'width: 234px'
+                  }
+                }"
+              />
+              <label for="email">Email</label>
+            </FloatLabel>
+          </div>
+          <div class="mb-4">
+            <FloatLabel>
+              <Password id="password" v-model="password" :feedback="false" toggleMask />
+              <label for="password">Password</label>
+            </FloatLabel>
+          </div>
+          <div class="d-flex justify-content-center">
+            <Button
+              label="Submit"
+              icon="pi pi-user-plus"
+              severity="success"
+              class="btn btn-outline-primary"
+              @click="register"
+            ></Button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -270,7 +290,7 @@
 
 <script lang="ts">
 export default {
-  name: 'Login'
+  name: 'Register'
 }
 </script>
 
@@ -283,15 +303,20 @@ const URL = 'http://localhost:8080'
 const router = useRouter()
 
 const back = () => {
-  router.replace('/home')
+  router.replace('/login')
 }
+
+const goHome = () => {
+  router.push('/')
+}
+
+let username = ref(null)
 let email = ref(null)
 let password = ref(null)
 
-const validateUser = () => {
-  // Construct the user object inside the function to capture the current input values
+const register = () => {
   let user = JSON.stringify({
-    nickName: null,
+    nickName: username.value,
     password: password.value,
     firstName: null,
     lastName: null,
@@ -304,7 +329,7 @@ const validateUser = () => {
     registeredTime: new Date().toISOString()
   })
 
-  fetch(`${URL}/api/login`, {
+  fetch(`${URL}/api/register`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -315,25 +340,18 @@ const validateUser = () => {
     .then((response) => {
       return response.json()
     })
-    .then((data) => {
+    .then((ifRegistered) => {
       // TODO: 如果成功登陆，等待两秒传送到主页。这期间用vue的toast来提醒用户！
-      if (data) {
+      if (ifRegistered) {
         setTimeout(() => {
           router.push('/home')
         }, 2000)
       }
+      console.log('If successfully registered: ' + ifRegistered)
     })
     .catch((error) => {
       console.log(error)
     })
-}
-
-const goHome = () => {
-  router.push('/')
-}
-
-const register = () => {
-  router.push('/register')
 }
 </script>
 
@@ -342,6 +360,7 @@ const register = () => {
   height: 200px;
   margin: 0 30px;
 }
+
 .homeIcon {
   cursor: pointer;
 }

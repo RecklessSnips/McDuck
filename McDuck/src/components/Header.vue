@@ -463,7 +463,8 @@
     <!-- 通知小铃铛和用户信息 -->
     <div class="col-sm-3 bg-info d-flex justify-content-end align-items-center">
       <!-- 登陆 -->
-      <button class="btn btn-warning me-3" @click="login">Sign in</button>
+      <button v-if="!isLogin" class="btn btn-warning me-3" @click="login">Sign in</button>
+      <span v-else class="me-5">{{ username }}</span>
       <!-- 小铃铛 -->
       <button type="button" class="bell btn btn-outline position-relative" @click="toggleBell">
         <FontAwesomeIcon v-badge="2" :icon="['far', 'bell']" class="fa-2xl" />
@@ -488,7 +489,7 @@
       <!-- TODO: 将label改成动态的 -->
       <Button
         class="btn btn-success"
-        label="Hi Ahsoka"
+        :label="greeting"
         :pt="{
           icon: {
             style: 'margin-left: 0'
@@ -505,34 +506,39 @@
       </Button>
       <OverlayPanel ref="op">
         <div>
-          <p>
+          <div v-if="!isLogin">
+            <span>OPPS!</span>
+            <span>You haven't log in!</span>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-user" style="font-size: 1.5rem"></i></span>
             <span>Your Account</span>
-          </p>
-          <Divider />
-          <p>
+          </div>
+          <Divider v-if="isLogin" />
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-shop" style="font-size: 1.5rem"></i></span>
             <span>Your Store</span>
-          </p>
-          <p>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
             <span
               ><i class="pi pi-heart-fill" style="font-size: 1.5rem; color: rgb(245, 49, 49)"></i
             ></span>
             <span>Saved Store</span>
-          </p>
-          <Divider />
-          <p>
+          </div>
+          <Divider v-if="isLogin" />
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-palette" style="font-size: 1.5rem"></i></span>
             <span>Theme</span>
-          </p>
-          <p>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-cog" style="font-size: 1.5rem"></i></span>
             <span>Account Settings</span>
-          </p>
-          <p>
-            <span><i class="pi pi-sign-out" style="font-size: 1.5rem"></i></span>
-            <span>Log out</span>
-          </p>
+          </div>
+          <div v-if="isLogin" class="signout hover-effect-div d-flex justify-content-start">
+            <!-- TODO: 写一个注销功能 -->
+            <div class="ms-1 me-4"><i class="pi pi-sign-out" style="font-size: 1.5rem"></i></div>
+            <div @click="signOut">Sign out</div>
+          </div>
         </div>
       </OverlayPanel>
     </div>
@@ -545,12 +551,83 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, reactive, onBeforeMount, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
-
+const URL = 'http://localhost:8080'
 const router = useRouter()
 
 let visible = ref(false)
+let isLogin = ref(false)
+let username = ref(null)
+let currentUser = reactive({
+  nickName: null,
+  password: null,
+  firstName: null,
+  lastName: null,
+  fullName: null,
+  address: null,
+  phoneNumber: null,
+  email: null,
+  creditCard: null,
+  balance: null,
+  registeredTime: null
+})
+
+// let greeting = ref<string | null>(null)
+let greeting = ref<string>('Hi User')
+
+watch(isLogin, (newV: boolean, old: boolean) => {
+  console.log('New status: ' + newV)
+  console.log('Origional status: ' + old)
+  // if(newV == false)
+})
+
+onBeforeMount(() => {
+  checkLoginStatus()
+})
+
+const checkLoginStatus = async () => {
+  isLogin.value = await checkSession()
+  if (!isLogin.value) {
+    // Optionally, redirect to login page or show login form
+    console.log('Session expired or not found. Please login.')
+  }
+}
+
+async function checkSession() {
+  try {
+    const response = await fetch(`${URL}/api/validate-session`, {
+      method: 'GET',
+      credentials: 'include' // Ensures cookies are sent and received with the request
+    })
+    if (response.ok) {
+      const loggedin = await response.json() // Safely parse JSON response
+      console.log('User if loggedin: ' + loggedin)
+      if (loggedin) {
+        const userResponse = await fetch(`${URL}/api/get-user-session`, {
+          method: 'GET',
+          credentials: 'include'
+        })
+        const user = await userResponse.json()
+        console.log('User: ' + user)
+        username.value = user.nickName
+        console.log('Username: ' + username)
+        Object.assign(currentUser, user)
+        console.log('Current User: ' + currentUser)
+        greeting.value = 'Hi ' + username.value
+        return true
+      } else {
+        return false
+      }
+    } else {
+      console.log('User not login yet!!!')
+      return false // Session is invalid or expired
+    }
+  } catch (error) {
+    console.error('Error checking session:', error)
+    return false // In case of any error, consider the session invalid
+  }
+}
 
 const hideSiderbar = () => {
   visible.value = !visible
@@ -562,6 +639,30 @@ const goHome = () => {
 
 const login = () => {
   router.push('/login')
+}
+
+const signOut = () => {
+  fetch(`${URL}/api/logout`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(currentUser)
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((ifLogout) => {
+      console.log('If successfully logout: ' + ifLogout)
+      isLogin.value = false
+      greeting.value = 'Hi User'
+      // location.reload()
+      router.push('/home')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 }
 
 const bell = ref()
@@ -595,5 +696,13 @@ const toggle = (event: MouseEvent) => {
 
 .searchBox {
   width: 30vw;
+}
+
+.signout:hover {
+  cursor: pointer;
+}
+
+.hover-effect-div:hover {
+  background-color: #e2c8a7; /* Change as needed */
 }
 </style>

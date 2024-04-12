@@ -32,6 +32,9 @@
         />
       </template>
     </Toolbar>
+    <div v-if="isDeafult">
+      <Default></Default>
+    </div>
     <RouterView></RouterView>
   </div>
 </template>
@@ -44,7 +47,19 @@ export default {
 
 <script lang="ts" setup>
 import type { RouterView } from 'vue-router'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import Default from '@/pages/Product/Default.vue'
+
+const route = useRoute()
+// 返回一个值
+const isDeafult = computed(() => {
+  // 通过检查matched数组来找到正确的路由记录
+  const routeRecord = route.matched.find((r) => r.path.includes('/products/deafult'))
+  console.log(routeRecord)
+  return routeRecord ? routeRecord.meta.isDefault : false
+})
+console.log(isDeafult.value)
 
 let checked = ref(false)
 const sorting = ref()

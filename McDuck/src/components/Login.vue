@@ -220,8 +220,10 @@
       <h1 class="text-center">A penny saved is a penny earned</h1>
     </div>
     <div class="d-flex justify-content-center align-items-center" style="height: 50vh; width: 98vw">
+      <!-- 如果已登陆 -->
+      <h1 v-if="isLogin">You are log in!</h1>
       <!-- 这个div是为了保持d-flex的形状 -->
-      <div>
+      <div v-if="!isLogin">
         <div class="mt-5">
           <InputGroup>
             <InputGroupAddon>
@@ -246,21 +248,27 @@
             icon="pi pi-user"
             severity="success"
             class="btn btn-outline-success"
+            :loading="loading"
+            :disabled="diabled"
             @click="validateUser"
           ></Button>
         </div>
       </div>
 
-      <div class="w-full md:w-2">
+      <div v-if="!isLogin" class="w-full md:w-2">
         <Divider layout="vertical" class="divider hidden md:flex"><span>OR</span></Divider>
       </div>
 
-      <div class="w-full md:w-5 flex align-items-center justify-content-center py-5">
+      <div
+        v-if="!isLogin"
+        class="w-full md:w-5 flex align-items-center justify-content-center py-5"
+      >
         <Button
           label="Sign Up"
           icon="pi pi-user-plus"
           severity="success"
           class="btn btn-outline-primary"
+          :loading="loading"
           @click="register"
         ></Button>
       </div>
@@ -275,8 +283,36 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+
+// Hook
+import useCurrentUser from '@/hooks/useCurrentUser'
+// Store (Pinia)
+import { useCurrentUserStore } from '@/stores/currentUser'
+import { storeToRefs } from 'pinia'
+
+const currentUserStore = useCurrentUserStore()
+let { ifLogin, user } = storeToRefs(currentUserStore)
+
+const { isLogin, currentUser } = useCurrentUser()
+
+// 直接assign会导致打不出来，以及有bug，用 watchEffect来追踪属性，让pinia的值跟着变！
+watchEffect(() => {
+  ifLogin.value = isLogin.value
+  Object.assign(currentUserStore.user, currentUser)
+  console.log('Login value: ', isLogin)
+  console.log('User: ', currentUser)
+  console.log('If loginnnnn: ' + ifLogin.value)
+  console.log('Current userrrrrrrrrr: ', user)
+})
+
+// let isLogin = ref(false)
+
+// onBeforeMount(() => {
+
+//   isLogin.value = islogin.value
+// })
 
 const URL = 'http://localhost:8080'
 
@@ -285,10 +321,18 @@ const router = useRouter()
 const back = () => {
   router.replace('/home')
 }
+
 let email = ref(null)
 let password = ref(null)
+let loading = ref(false)
+let diabled = ref(false)
 
 const validateUser = () => {
+  // 检查用户是否有输入
+  if (email.value == null || password.value == null) {
+    alert('Please enter your email or password!')
+    return
+  }
   // Construct the user object inside the function to capture the current input values
   let user = JSON.stringify({
     nickName: null,
@@ -318,9 +362,12 @@ const validateUser = () => {
     .then((data) => {
       // TODO: 如果成功登陆，等待两秒传送到主页。这期间用vue的toast来提醒用户！
       if (data) {
+        // 防止用户连续点击按钮造成bug，加上loading效果更加逼真
+        diabled.value = true
+        loading.value = true
         setTimeout(() => {
           router.push('/home')
-        }, 2000)
+        }, 1000)
       }
     })
     .catch((error) => {

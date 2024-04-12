@@ -34,6 +34,9 @@ import Slider from 'primevue/slider'
 import Password from 'primevue/password'
 import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
+import FileUpload from 'primevue/fileupload'
+import Toast from 'primevue/toast'
+import ToastService from 'primevue/toastservice'
 
 import App from './App.vue'
 
@@ -43,6 +46,7 @@ const app = createApp(App)
 
 app.use(PrimeVue)
 app.use(router)
+app.use(ToastService)
 app.use(createPinia())
 
 // Register FontAwesomeIcon component globally
@@ -68,6 +72,8 @@ app.component('Slider', Slider)
 app.component('Password', Password)
 app.component('InputGroup', InputGroup)
 app.component('InputGroupAddon', InputGroupAddon)
+app.component('FileUpload', FileUpload)
+app.component('Toast', Toast)
 
 app.directive('badge', BadgeDirective)
 

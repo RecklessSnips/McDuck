@@ -551,16 +551,32 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 
 // Hook
 import useCurrentUser from '@/hooks/useCurrentUser'
 
+// Store (Pinia)
+import { useCurrentUserStore } from '@/stores/currentUser'
+import { storeToRefs } from 'pinia'
+
 const URL = 'http://localhost:8080'
 const router = useRouter()
+const currentUserStore = useCurrentUserStore()
+let { ifLogin, user } = storeToRefs(currentUserStore)
 
 const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
+
+// 直接assign会导致打不出来，以及有bug，用 watchEffect来追踪属性，让pinia的值跟着变！
+watchEffect(() => {
+  ifLogin.value = isLogin.value
+  Object.assign(user, currentUser)
+  console.log('Login value: ', isLogin.value)
+  console.log('User: ', currentUser)
+  console.log('If loginnnnn: ' + ifLogin.value)
+  console.log('Current userrrrrrrrrr: ', user)
+})
 
 const hideSiderbar = () => {
   visible.value = !visible
@@ -589,6 +605,8 @@ const signOut = () => {
     .then((ifLogout) => {
       console.log('If successfully logout: ' + ifLogout)
       isLogin.value = false
+      currentUserStore.ifLogin = false
+      Object.assign(currentUserStore.user, null)
       greeting.value = 'Hi User'
       router.push('/home')
     })

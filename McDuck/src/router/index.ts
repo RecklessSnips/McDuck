@@ -8,6 +8,7 @@ import Condition from '@/pages/Product/Condition.vue'
 import Status from '@/pages/Product/Status.vue'
 import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
+import Default from '@/pages/Product/Default.vue'
 
 const router = createRouter({
   // 路由工作模式
@@ -21,23 +22,34 @@ const router = createRouter({
       children: [
         {
           path: 'products/deal',
-          component: Deal
+          component: Deal,
+          meta: { isDefault: false }
         },
         {
           path: 'products/topstore',
-          component: TopStore
+          component: TopStore,
+          meta: { isDefault: false }
         },
         {
           path: 'products/rate',
-          component: Rate
+          component: Rate,
+          meta: { isDefault: false }
         },
         {
           path: 'products/condition',
-          component: Condition
+          component: Condition,
+          meta: { isDefault: false }
         },
         {
           path: 'products/status',
-          component: Status
+          component: Status,
+          meta: { isDefault: false }
+        },
+        {
+          // 默认子路由，当父路径被直接访问，会自动加载和显示一个默认视图
+          path: '',
+          component: Default,
+          meta: { isDefault: true }
         }
       ]
     },

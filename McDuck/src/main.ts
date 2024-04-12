@@ -1,5 +1,8 @@
 // import './assets/main.css'
-import 'primeicons/primeicons.css'
+import 'primevue/resources/themes/saga-blue/theme.css' // theme
+import 'primevue/resources/primevue.min.css' // core css
+import 'primeicons/primeicons.css' // icons
+
 // Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -37,6 +40,12 @@ import InputGroupAddon from 'primevue/inputgroupaddon'
 import FileUpload from 'primevue/fileupload'
 import Toast from 'primevue/toast'
 import ToastService from 'primevue/toastservice'
+import DataView from 'primevue/dataview'
+import DataViewLayoutOptions from 'primevue/dataviewlayoutoptions'
+import Column from 'primevue/column'
+import ColumnGroup from 'primevue/columngroup'
+import Row from 'primevue/row'
+import Tag from 'primevue/tag'
 
 import App from './App.vue'
 
@@ -74,6 +83,12 @@ app.component('InputGroup', InputGroup)
 app.component('InputGroupAddon', InputGroupAddon)
 app.component('FileUpload', FileUpload)
 app.component('Toast', Toast)
+app.component('DataView', DataView)
+app.component('DataViewLayoutOptions', DataViewLayoutOptions)
+app.component('Column', Column)
+app.component('ColumnGroup', ColumnGroup)
+app.component('Row', Row)
+app.component('Tag', Tag)
 
 app.directive('badge', BadgeDirective)
 

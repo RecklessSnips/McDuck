@@ -455,11 +455,25 @@
     </div>
     <!-- 搜索框 -->
     <div class="col-sm-6 bg-danger d-flex justify-content-center align-items-center">
-      <IconField>
-        <InputText type="text" id="search" class="searchBox"></InputText>
-        <InputIcon class="pi pi-search"></InputIcon>
-      </IconField>
+      <!-- 开启相对定位，来帮助搜索结果来锁定位置 -->
+      <div class="position-relative">
+        <IconField>
+          <InputText v-model="keywords" type="text" id="search" class="searchBox"></InputText>
+          <InputIcon class="pi pi-search"></InputIcon>
+        </IconField>
+        <!-- 用来展示所搜索的结果 -->
+        <div v-show="results.length" class="list-group position-absolute z-3">
+          <a
+            v-for="(result, index) in results"
+            :key="index"
+            href="#"
+            class="list-group-item list-group-item-action"
+            >{{ result }}</a
+          >
+        </div>
+      </div>
     </div>
+
     <!-- 通知小铃铛和用户信息 -->
     <div class="col-sm-3 bg-info d-flex justify-content-end align-items-center">
       <!-- 登陆 -->
@@ -551,7 +565,8 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, watchEffect } from 'vue'
+import { ref, reactive, watch, watchEffect } from 'vue'
+import _ from 'lodash' // Import lodash
 import { useRouter, RouterLink } from 'vue-router'
 
 // Hook
@@ -565,6 +580,8 @@ const URL = 'http://localhost:8080'
 const router = useRouter()
 const currentUserStore = useCurrentUserStore()
 let { ifLogin, user } = storeToRefs(currentUserStore)
+let results = ref([])
+let keywords = ref('')
 
 const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
 
@@ -615,11 +632,45 @@ const signOut = () => {
     })
 }
 
+const search = () => {
+  if (keywords.value !== '') {
+    // 清除之前搜索记录
+    results.value = []
+    fetch(`${URL}/api/searchProduct`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'text/plain'
+      },
+      body: keywords.value
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return response.json()
+      })
+      .then((searchResults) => {
+        results.value = searchResults
+        console.log('Search: ', searchResults)
+        console.log('Results: ', results)
+      })
+      .catch((error) => console.error('You have an error: ', error))
+  }
+}
+
+const debouncedSearch = _.debounce(() => {
+  search()
+}, 500)
+
+watch(keywords, debouncedSearch)
+
+// 小铃铛
 const bell = ref()
 const toggleBell = (event: MouseEvent) => {
   bell.value.toggle(event)
 }
-
+// 用户信息
 const op = ref()
 const toggle = (event: MouseEvent) => {
   op.value.toggle(event)
@@ -643,7 +694,6 @@ const toggle = (event: MouseEvent) => {
 .homeIcon {
   cursor: pointer;
 }
-
 .searchBox {
   width: 30vw;
 }
@@ -654,5 +704,10 @@ const toggle = (event: MouseEvent) => {
 
 .hover-effect-div:hover {
   background-color: #e2c8a7;
+}
+
+.list-group {
+  /* 跟searchbar的宽度一样 */
+  width: 100%;
 }
 </style>

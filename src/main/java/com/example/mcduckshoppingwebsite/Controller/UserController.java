@@ -109,7 +109,7 @@ public class UserController {
             }
         }
         // Ensure the response is in JSON format for consistency
-        return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
 
     // 如果有登陆，调用这个方法来拿取最近登陆人的信息
@@ -123,6 +123,6 @@ public class UserController {
             User user = tokenStore.getUser(lastCookie.getValue());
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 }

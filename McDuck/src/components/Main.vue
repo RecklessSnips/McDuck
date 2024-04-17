@@ -2,8 +2,11 @@
 
 <!-- TODO: 用这个Figure：https://getbootstrap.com/docs/5.3/content/typography/ -->
 <template>
-  <div class="mx-5 mt-5">
-    <Header v-if="showHeader"></Header>
+  <div>
+    <!-- 这个div会被渲染出来，所以要把if加到div上 -->
+    <div v-if="showHeader" class="mx-5 mt-5">
+      <Header></Header>
+    </div>
     <router-view></router-view>
   </div>
 </template>

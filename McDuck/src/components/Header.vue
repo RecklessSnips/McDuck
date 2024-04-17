@@ -463,7 +463,8 @@
     <!-- 通知小铃铛和用户信息 -->
     <div class="col-sm-3 bg-info d-flex justify-content-end align-items-center">
       <!-- 登陆 -->
-      <button class="btn btn-warning me-3" @click="login">Sign in</button>
+      <button v-if="!isLogin" class="btn btn-warning me-3" @click="login">Sign in</button>
+      <span v-else class="me-5">{{ username }}</span>
       <!-- 小铃铛 -->
       <button type="button" class="bell btn btn-outline position-relative" @click="toggleBell">
         <FontAwesomeIcon v-badge="2" :icon="['far', 'bell']" class="fa-2xl" />
@@ -488,7 +489,7 @@
       <!-- TODO: 将label改成动态的 -->
       <Button
         class="btn btn-success"
-        label="Hi Ahsoka"
+        :label="greeting"
         :pt="{
           icon: {
             style: 'margin-left: 0'
@@ -505,34 +506,39 @@
       </Button>
       <OverlayPanel ref="op">
         <div>
-          <p>
+          <div v-if="!isLogin">
+            <span>OPPS!</span>
+            <span>You haven't log in!</span>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-user" style="font-size: 1.5rem"></i></span>
             <span>Your Account</span>
-          </p>
-          <Divider />
-          <p>
+          </div>
+          <Divider v-if="isLogin" />
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-shop" style="font-size: 1.5rem"></i></span>
             <span>Your Store</span>
-          </p>
-          <p>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
             <span
               ><i class="pi pi-heart-fill" style="font-size: 1.5rem; color: rgb(245, 49, 49)"></i
             ></span>
             <span>Saved Store</span>
-          </p>
-          <Divider />
-          <p>
+          </div>
+          <Divider v-if="isLogin" />
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-palette" style="font-size: 1.5rem"></i></span>
             <span>Theme</span>
-          </p>
-          <p>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-cog" style="font-size: 1.5rem"></i></span>
             <span>Account Settings</span>
-          </p>
-          <p>
-            <span><i class="pi pi-sign-out" style="font-size: 1.5rem"></i></span>
-            <span>Log out</span>
-          </p>
+          </div>
+          <div v-if="isLogin" class="signout hover-effect-div d-flex justify-content-start">
+            <!-- TODO: 写一个注销功能 -->
+            <div class="ms-1 me-4"><i class="pi pi-sign-out" style="font-size: 1.5rem"></i></div>
+            <div @click="signOut">Sign out</div>
+          </div>
         </div>
       </OverlayPanel>
     </div>
@@ -545,12 +551,32 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 
-const router = useRouter()
+// Hook
+import useCurrentUser from '@/hooks/useCurrentUser'
 
-let visible = ref(false)
+// Store (Pinia)
+import { useCurrentUserStore } from '@/stores/currentUser'
+import { storeToRefs } from 'pinia'
+
+const URL = 'http://localhost:8080'
+const router = useRouter()
+const currentUserStore = useCurrentUserStore()
+let { ifLogin, user } = storeToRefs(currentUserStore)
+
+const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
+
+// 直接assign会导致打不出来，以及有bug，用 watchEffect来追踪属性，让pinia的值跟着变！
+watchEffect(() => {
+  ifLogin.value = isLogin.value
+  Object.assign(user, currentUser)
+  console.log('Login value: ', isLogin.value)
+  console.log('User: ', currentUser)
+  console.log('If loginnnnn: ' + ifLogin.value)
+  console.log('Current userrrrrrrrrr: ', user)
+})
 
 const hideSiderbar = () => {
   visible.value = !visible
@@ -562,6 +588,31 @@ const goHome = () => {
 
 const login = () => {
   router.push('/login')
+}
+
+const signOut = () => {
+  fetch(`${URL}/api/logout`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(currentUser)
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((ifLogout) => {
+      console.log('If successfully logout: ' + ifLogout)
+      isLogin.value = false
+      currentUserStore.ifLogin = false
+      Object.assign(currentUserStore.user, null)
+      greeting.value = 'Hi User'
+      router.push('/home')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 }
 
 const bell = ref()
@@ -579,7 +630,7 @@ const toggle = (event: MouseEvent) => {
 .bars {
   width: 2.5rem;
   height: 2.5rem;
-  padding: 0; /* Removes padding to help center the icon */
+  padding: 0;
   border-radius: 50%;
 }
 .bell {
@@ -595,5 +646,13 @@ const toggle = (event: MouseEvent) => {
 
 .searchBox {
   width: 30vw;
+}
+
+.signout:hover {
+  cursor: pointer;
+}
+
+.hover-effect-div:hover {
+  background-color: #e2c8a7;
 }
 </style>

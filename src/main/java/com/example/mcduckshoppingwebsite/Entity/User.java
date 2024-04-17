@@ -17,6 +17,23 @@ public class User {
     private Double balance;
     private LocalDateTime registeredTime;
 
+    public User(){}
+
+    public User(String userId, String password, String nickName, String firstName, String lastName, String fullName, String address, Integer phoneNumber, String email, String creditCard, Double balance, LocalDateTime registeredTime) {
+        this.userId = userId;
+        this.password = password;
+        this.nickName = nickName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.fullName = fullName;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.creditCard = creditCard;
+        this.balance = balance;
+        this.registeredTime = registeredTime;
+    }
+
     public String getUserId() {
         return userId;
     }

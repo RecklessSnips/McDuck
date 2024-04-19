@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <DataView :value="products" :layout="layout">
+    <DataView :value="productList" :layout="layout">
       <template #header>
         <div class="d-flex justify-content-end">
           <DataViewLayoutOptions v-model="layout" />
@@ -146,17 +146,11 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ProductService } from '@/service/ProductService'
 
 const URL = 'http://localhost:8080'
-const name = ref('ahsoka.jpg')
-const imageURL = ref('/images/' + name.value)
 const productList = reactive<Product[]>([])
 
-const productService = new ProductService()
-
 onMounted(() => {
-  productService.getProducts().then((data) => (products.value = data.slice(0, 12)))
   getRandomProducts()
 })
 

@@ -26,6 +26,14 @@ public class ProductController {
                 : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
+    @PostMapping("/api/searchProductByCategory")
+    public ResponseEntity<List<Product>> searchProductByCategory(@RequestBody String keyword){
+        List<Product> products = productService.searchProductByCategory(keyword);
+        return products != null
+                ? new ResponseEntity<>(products, HttpStatus.OK)
+                : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
     @PostMapping("/api/addProduct")
     public ResponseEntity<Boolean> addProduct(@RequestBody Product product){
         System.out.println("Controller: " + product);

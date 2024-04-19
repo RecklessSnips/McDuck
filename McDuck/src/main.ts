@@ -13,6 +13,7 @@ library.add(far)
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
+import { clickOutside } from '@/util/clickOutside.ts'
 
 import PrimeVue from 'primevue/config'
 import Sidebar from 'primevue/sidebar'
@@ -22,7 +23,6 @@ import FloatLabel from 'primevue/floatlabel'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
-import Badge from 'primevue/badge'
 import BadgeDirective from 'primevue/badgedirective'
 import SplitButton from 'primevue/splitbutton'
 import OverlayPanel from 'primevue/overlaypanel'
@@ -46,6 +46,8 @@ import Column from 'primevue/column'
 import ColumnGroup from 'primevue/columngroup'
 import Row from 'primevue/row'
 import Tag from 'primevue/tag'
+import Rating from 'primevue/rating'
+import Breadcrumb from 'primevue/breadcrumb'
 
 import App from './App.vue'
 
@@ -89,7 +91,10 @@ app.component('Column', Column)
 app.component('ColumnGroup', ColumnGroup)
 app.component('Row', Row)
 app.component('Tag', Tag)
+app.component('Rating', Rating)
+app.component('Breadcrumb', Breadcrumb)
 
 app.directive('badge', BadgeDirective)
+app.directive('click-outside', clickOutside)
 
 app.mount('#app')

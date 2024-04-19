@@ -17,6 +17,10 @@ public class ProductService {
         return productRepo.searchProduct(keyword);
     }
 
+    public List<Product> searchProductByCategory(String keyword){
+        return productRepo.searchProductByCategory(keyword);
+    }
+
     public boolean addProduct(Product product){
         return productRepo.addProduct(product);
     }

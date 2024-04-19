@@ -454,22 +454,33 @@
       </div>
     </div>
     <!-- 搜索框 -->
+    <!-- TODO: 点击enter或者serch按钮可以对当前搜索框内的东西进行搜索！ -->
     <div class="col-sm-6 bg-danger d-flex justify-content-center align-items-center">
       <!-- 开启相对定位，来帮助搜索结果来锁定位置 -->
-      <div class="position-relative">
+      <div class="position-relative" v-click-outside="hideResults">
         <IconField>
-          <InputText v-model="keywords" type="text" id="search" class="searchBox"></InputText>
+          <InputText
+            v-model="keywords"
+            type="text"
+            id="search"
+            class="searchBox"
+            @keyup.enter="setCategory(keywords)"
+            @input="handleInput"
+            @focus="showResults"
+          ></InputText>
           <InputIcon class="pi pi-search"></InputIcon>
         </IconField>
         <!-- 用来展示所搜索的结果 -->
-        <div v-show="results.length" class="list-group position-absolute z-3">
-          <a
+        <div v-show="showSearchResults && results.length" class="list-group position-absolute z-3">
+          <span
             v-for="(result, index) in results"
+            @click.prevent="setCategory(result)"
             :key="index"
             href="#"
-            class="list-group-item list-group-item-action"
-            >{{ result }}</a
+            class="searchResults list-group-item list-group-item-action"
           >
+            {{ result }}
+          </span>
         </div>
       </div>
     </div>
@@ -565,9 +576,10 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, watchEffect } from 'vue'
+import { ref, watch, watchEffect, onMounted } from 'vue'
 import _ from 'lodash' // Import lodash
-import { useRouter, RouterLink } from 'vue-router'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import emitter from '@/util/emitter'
 
 // Hook
 import useCurrentUser from '@/hooks/useCurrentUser'
@@ -578,12 +590,22 @@ import { storeToRefs } from 'pinia'
 
 const URL = 'http://localhost:8080'
 const router = useRouter()
+const route = useRoute()
 const currentUserStore = useCurrentUserStore()
 let { ifLogin, user } = storeToRefs(currentUserStore)
 let results = ref([])
 let keywords = ref('')
+let showSearchResults = ref(false)
 
 const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
+
+onMounted(() => {
+  if (route.query.search) {
+    console.log(route.query.search)
+    keywords.value = route.query.search as string
+    debouncedSearch()
+  }
+})
 
 // 直接assign会导致打不出来，以及有bug，用 watchEffect来追踪属性，让pinia的值跟着变！
 watchEffect(() => {
@@ -601,6 +623,7 @@ const hideSiderbar = () => {
 
 const goHome = () => {
   router.push('/')
+  // window.location.reload()
 }
 
 const login = () => {
@@ -663,7 +686,53 @@ const debouncedSearch = _.debounce(() => {
   search()
 }, 500)
 
-watch(keywords, debouncedSearch)
+/*
+ 专门创建这个，只有当input里被输入的时候才调用
+ 如果是用搜索框点击的，不调用search方法
+*/
+const handleInput = (event: any) => {
+  keywords.value = event.target.value
+  debouncedSearch()
+}
+
+// 查询某个特定种类的产品
+const setCategory = (result: string) => {
+  keywords.value = result
+  results.value = []
+  fetch(`${URL}/api/searchProductByCategory`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: keywords.value
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((data) => {
+      console.log('Searched catagory: ', data)
+      /* 
+      跳到展示指定种类的页面，并且将要展示的商品和当前的搜索关键字传过去
+      为了跳到商品页面时能顺利保存当前搜索记录
+      */
+      emitter.emit('getProductsByCategory', { data, keywords })
+    })
+}
+
+watch(keywords, (newVal) => {
+  if (newVal === '') {
+    results.value = []
+  }
+})
+
+// 实现点击搜索结果外部，搜索框消失，点击搜索结果，恢复搜索结果
+const showResults = () => {
+  showSearchResults.value = true
+}
+const hideResults = () => {
+  showSearchResults.value = false
+}
 
 // 小铃铛
 const bell = ref()
@@ -709,5 +778,9 @@ const toggle = (event: MouseEvent) => {
 .list-group {
   /* 跟searchbar的宽度一样 */
   width: 100%;
+}
+
+.searchResults:hover {
+  cursor: pointer;
 }
 </style>

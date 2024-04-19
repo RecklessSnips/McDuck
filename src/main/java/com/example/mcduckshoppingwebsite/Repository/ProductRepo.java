@@ -6,8 +6,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class ProductRepo {
@@ -16,19 +15,48 @@ public class ProductRepo {
     private JdbcTemplate jdbcTemplate;
 
     public List<String> searchProduct(String keyword){
-        String sql = "SELECT * FROM Product WHERE category LIKE ? LIMIT 8";
+        String sql = "SELECT * FROM Product WHERE category LIKE ? OR product_name LIKE ? LIMIT 8";
+
         StringBuilder builder = new StringBuilder();
         for(char c: keyword.replaceAll(" ", "").toCharArray()){
             builder.append("%").append(c);
         }
         builder.append("%");
         System.out.println("Keywords: " + builder);
-        List<String> name = jdbcTemplate.query(sql, new Object[]{builder.toString()}, (rs, rowNum) -> rs.getString("product_name"));
+        // 填补两个 ？，都用同样的pattern来搜索
+        Object[] searchPattern = new Object[]{builder.toString(), builder.toString()};
+        List<String> name = jdbcTemplate.query(sql, searchPattern, (rs, rowNum) -> rs.getString("product_name"));
         for(String s: name){
             System.out.println("Searched name: " + s);
         }
         System.out.println("-----------------------------------------------------------------------");
         return name;
+    }
+
+    public List<Product> searchProductByCategory(String keyword){
+        String sql = "SELECT * FROM Product WHERE category LIKE ? OR product_name LIKE ? LIMIT 20";
+        StringBuilder builder = new StringBuilder();
+        for(char c: keyword.replaceAll(" ", "").toCharArray()){
+            builder.append("%").append(c);
+        }
+        builder.append("%");
+        Object[] searchPattern = new Object[]{builder.toString(), builder.toString()};
+        List<Product> products = jdbcTemplate.query(sql, searchPattern,
+                (rs, rowNum) -> new Product(
+                        rs.getString("product_id"),
+                        rs.getString("category"),
+                        rs.getString("product_name"),
+                        rs.getString("author"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock_quantity"),
+                        rs.getInt("review_star"),
+                        rs.getString("review_message"),
+                        rs.getString("image_path"),
+                        rs.getTimestamp("listing_date").toLocalDateTime()
+                ));
+        System.out.println("Searched products: " + products);
+        return products;
     }
 
     public boolean addProduct(Product product){

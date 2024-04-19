@@ -32,11 +32,7 @@
         />
       </template>
     </Toolbar>
-    <!-- <div v-if="isDeafult">
-      <Default></Default>
-    </div> -->
-    <!-- <RouterView></RouterView> -->
-    <div v-cloak class="card">
+    <div v-if="isReady" class="card">
       <DataView :value="productList" :layout="layout">
         <template #header>
           <div class="d-flex justify-content-end">
@@ -189,26 +185,23 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'
-import Default from '@/pages/Product/Default.vue'
-import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onBeforeMount, onUnmounted } from 'vue'
 import emitter from '@/util/emitter'
 import router from '@/router'
+
+// Store (Pinia)
+import { useCurrentUserStore } from '@/stores/currentUser'
+import { storeToRefs } from 'pinia'
+
+const currentUserStore = useCurrentUserStore()
+let { skipRandomProducts } = storeToRefs(currentUserStore)
 
 const URL = 'http://localhost:8080'
 let productList = reactive<Product[]>([])
 let keyword = ref('')
 const layout = ref('grid')
-
-const route = useRoute()
-// 返回一个值
-// const isDeafult = computed(() => {
-//   // 通过检查matched数组来找到正确的路由记录
-//   const routeRecord = route.matched.find((r) => r.path.includes('/products/deafult'))
-//   console.log(routeRecord)
-//   return routeRecord ? routeRecord.meta.isDefault : false
-// })
-// console.log(isDeafult.value)
+let isReady = ref(false)
+let stopGetRandomProducts = ref(false)
 
 let checked = ref(false)
 const sorting = ref()
@@ -220,26 +213,12 @@ const sortOption = ref([
   { name: 'Best Sellers', code: 'PRS' }
 ])
 
-onMounted(() => {
-  // if (typeof route.query.searchKeywords === 'string') {
-  //   keyword.value = route.query.searchKeywords
-  //   // 绑定接受商品事件
-  //   emitter.on('getProductsByCategory', (data: any) => {
-  //     // const received = reactive(data)
-  //     // console.log('received', received)
-  //     // console.log('data', data)
-  //     // console.log('Products recieved!!!', received.data)
-  //     // console.log('Keywords: ', received.keywords)
-  //     keyword.value = data.keywords
-  //     console.log('keyword:', keyword.value)
-  //     // 清空当前搜索的结果，
-  //     productList.splice(0, productList.length)
-  //     Object.assign(productList, data.data)
-  //   })
-  // } else {
-  //   getRandomProducts()
-  // }
-  getRandomProducts()
+onBeforeMount(() => {
+  if (!skipRandomProducts.value) {
+    isReady.value = true
+    console.log(isReady.value)
+    getRandomProducts()
+  }
 })
 
 const getSeverity = (product: Product) => {
@@ -290,16 +269,18 @@ const getRandomProducts = () => {
 }
 
 emitter.on('getProductsByCategory', (data: any) => {
-  // const received = reactive(data)
-  // console.log('received', received)
-  // console.log('data', data)
-  // console.log('Products recieved!!!', received.data)
-  // console.log('Keywords: ', received.keywords)
+  console.log(data)
+  console.log('data', data)
+  console.log('Products recieved!!!', data.data)
+  console.log('Keywords: ', data.keywords)
   keyword.value = data.keywords
   console.log('keyword:', keyword.value)
   // 清空当前搜索的结果，
   productList.splice(0, productList.length)
   Object.assign(productList, data.data)
+  isReady.value = true
+  stopGetRandomProducts.value = true
+  console.log(isReady.value)
 })
 
 // 在组件卸载时解绑事件

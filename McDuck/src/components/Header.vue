@@ -592,7 +592,7 @@ const URL = 'http://localhost:8080'
 const router = useRouter()
 const route = useRoute()
 const currentUserStore = useCurrentUserStore()
-let { ifLogin, user } = storeToRefs(currentUserStore)
+let { ifLogin, user, skipRandomProducts } = storeToRefs(currentUserStore)
 let results = ref([])
 let keywords = ref('')
 let showSearchResults = ref(false)
@@ -716,7 +716,11 @@ const setCategory = (result: string) => {
       跳到展示指定种类的页面，并且将要展示的商品和当前的搜索关键字传过去
       为了跳到商品页面时能顺利保存当前搜索记录
       */
-      emitter.emit('getProductsByCategory', { data, keywords })
+      // 阻止再次调用getRandomProduct函数
+      skipRandomProducts.value = true
+      router.push('/').then(() => {
+        emitter.emit('getProductsByCategory', { data, keywords: keywords.value })
+      })
     })
 }
 

@@ -225,11 +225,98 @@
             <span class="font-bold">Welcome SDGHSDAS</span>
           </div>
         </template>
-        <div class="d-flex flex-column align-items-start">
-          <!-- TODO: 完成router的跳跃，还有各种种类 -->
-          <div @click="hideSiderbar"><RouterLink to="/store">Recommanded Stores</RouterLink></div>
-          <div @click="hideSiderbar"><RouterLink to="/home">Home</RouterLink></div>
-        </div>
+        <!-- TODO: 完成router的跳跃，还有各种种类
+            总共商品种类， 每个商品再次分类：
+            1. 去往商家的选项 recommanded stores
+            2. books
+              a. 小说
+              b. 漫画
+            3. electronic
+            4. fashion
+            5. homeappliance
+            6. sports
+           -->
+        <Accordion :multiple="true" :activeIndex="[0, 1, 2, 3, 4]">
+          <!-- Books -->
+          <AccordionTab
+            header="Books"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(book.name)" class="category" v-for="book in books">
+                {{ book.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Electronic -->
+          <AccordionTab
+            header="Electronic"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(e.name)" class="category" v-for="e in electronic">
+                {{ e.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Fashion -->
+          <AccordionTab
+            header="Clothes"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(c.name)" class="category" v-for="c in cloth">
+                {{ c.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Home Appliance -->
+          <AccordionTab
+            header="Kitchen"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(k.name)" class="category" v-for="k in kitchen">
+                {{ k.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Sports -->
+          <AccordionTab
+            header="Sports"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(s.name)" class="category" v-for="s in sports">
+                {{ s.name }}
+              </div>
+            </div>
+          </AccordionTab>
+        </Accordion>
       </Sidebar>
       <!-- 到时加一个 icon="pi pi-arrow-right"， 换一个 Icon -->
       <div class="d-flex justify-content-start align-items-center">
@@ -577,7 +664,7 @@ export default {
 
 <script lang="ts" setup>
 import { ref, watch, watchEffect, onMounted } from 'vue'
-import _ from 'lodash' // Import lodash
+import _ from 'lodash'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import emitter from '@/util/emitter'
 
@@ -587,6 +674,7 @@ import useCurrentUser from '@/hooks/useCurrentUser'
 // Store (Pinia)
 import { useCurrentUserStore } from '@/stores/currentUser'
 import { storeToRefs } from 'pinia'
+import AccordionTab from 'primevue/accordiontab'
 
 const URL = 'http://localhost:8080'
 const router = useRouter()
@@ -598,6 +686,33 @@ let keywords = ref('')
 let showSearchResults = ref(false)
 
 const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
+
+const books = ref([
+  { name: 'Romance', link: '/home/products' },
+  { name: 'Science', link: '/home/products' },
+  { name: 'Star Wars', link: '/home/products' },
+  { name: 'Thriller', link: '/home/products' }
+])
+
+const electronic = ref([
+  { name: 'Computer', link: '/home/products' },
+  { name: 'Headset', link: '/home/products' },
+  { name: 'Speaker', link: '/home/products' },
+  { name: 'TV', link: '/home/products' }
+])
+
+const cloth = ref([
+  { name: 'MenClothes', link: '/home/products' },
+  { name: 'WomenClothes', link: '/home/products' }
+])
+
+const kitchen = ref([
+  { name: 'Fridge', link: '/home/products' },
+  { name: 'Coffee', link: '/home/products' },
+  { name: 'AirFryer', link: '/home/products' }
+])
+
+const sports = ref([{ name: 'Outdoor', link: '/home/products' }])
 
 onMounted(() => {
   if (route.query.search) {
@@ -730,6 +845,53 @@ watch(keywords, (newVal) => {
   }
 })
 
+const goProducts = (category: string) => {
+  console.log(category)
+  let keywords = ''
+  if (category === 'Romance') {
+    keywords = 'RomanceBooks'
+  } else if (category === 'Science') {
+    keywords = 'ScienceBooks'
+  } else if (category === 'Star Wars') {
+    keywords = 'StarWarsBooks'
+  } else if (category === 'Thriller') {
+    keywords = 'ThrillerBooks'
+  } else if (category === 'Computer') {
+    keywords = 'Computers'
+  } else if (category === 'Headset') {
+    keywords = 'Headsets'
+  } else if (category === 'Speaker') {
+    keywords = 'Speakers'
+  } else if (category === 'TV') {
+    keywords = 'TVs'
+  } else if (category === 'MenClothes') {
+    keywords = 'MenClothes'
+  } else if (category === 'WomenClothes') {
+    keywords = 'WomenClothes'
+  } else if (category === 'Fridge') {
+    keywords = 'Refrigerator'
+  } else if (category === 'Coffee') {
+    keywords = 'CoffeeMaker'
+  } else if (category === 'AirFryer') {
+    keywords = 'AirFryer'
+  }
+  fetch(`${URL}/api/get${keywords}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((products) => {
+      router.push('/home/products').then(() => {
+        emitter.emit('getProductsByCategory', { data: products })
+      })
+    })
+}
+
 // 实现点击搜索结果外部，搜索框消失，点击搜索结果，恢复搜索结果
 const showResults = () => {
   showSearchResults.value = true
@@ -786,5 +948,16 @@ const toggle = (event: MouseEvent) => {
 
 .searchResults:hover {
   cursor: pointer;
+}
+
+.category {
+  text-decoration: none;
+  color: #e2c8a7;
+  display: block;
+  cursor: pointer;
+}
+
+.category:hover {
+  background-color: #dae6ed;
 }
 </style>

@@ -48,6 +48,9 @@ import Row from 'primevue/row'
 import Tag from 'primevue/tag'
 import Rating from 'primevue/rating'
 import Breadcrumb from 'primevue/breadcrumb'
+import TabView from 'primevue/tabview'
+import TabPanel from 'primevue/tabpanel'
+import Panel from 'primevue/panel'
 
 import App from './App.vue'
 
@@ -93,6 +96,9 @@ app.component('Row', Row)
 app.component('Tag', Tag)
 app.component('Rating', Rating)
 app.component('Breadcrumb', Breadcrumb)
+app.component('TabView', TabView)
+app.component('TabPanel', TabPanel)
+app.component('Panel', Panel)
 
 app.directive('badge', BadgeDirective)
 app.directive('click-outside', clickOutside)

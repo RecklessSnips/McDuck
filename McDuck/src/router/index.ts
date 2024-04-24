@@ -8,7 +8,7 @@ import Condition from '@/pages/Product/Condition.vue'
 import Status from '@/pages/Product/Status.vue'
 import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
-import Default from '@/pages/Product/Default.vue'
+import DefaultProduct from '@/pages/Product/DefaultProduct.vue'
 import ProductPage from '@/pages/Product/ProductPage.vue'
 import Product from '@/pages/Product/Products.vue'
 

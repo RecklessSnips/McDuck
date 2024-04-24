@@ -33,9 +33,17 @@ export default {
 import Breadcrumb from 'primevue/breadcrumb'
 import { ref, reactive, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import emitter from '@/util/emitter'
+// Store (Pinia)
+import { useCurrentUserStore } from '@/stores/currentUser'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const router = useRouter()
+
+const currentUserStore = useCurrentUserStore()
+let { skipRandomProducts } = storeToRefs(currentUserStore)
+let stopGetRandomProducts = ref(false)
 
 // 接受传过来的商品
 interface Product {
@@ -103,13 +111,13 @@ rating.value = product.review_star
 // 返回上一层搜索记录
 interface BreadcrumbItem {
   label: string
-  command?: () => void // Optional, include only if some items will not have commands
+  command?: () => void
 }
 
 const items = ref<BreadcrumbItem[]>([])
 
 watchEffect(() => {
-  const searchParam = route.query.searchKeywords
+  const searchParam = ref(route.query.searchKeywords)
 
   items.value = [
     {
@@ -121,28 +129,29 @@ watchEffect(() => {
     {
       label: 'Search',
       command: () => {
-        router.push({ path: '/home', query: { search: searchParam } })
+        // 保持当前搜索记录
+        router.push('/').then(() => {
+          emitter.emit('getProductsByCategory', { keywords: searchParam.value })
+          // stopGetRandomProducts.value = true
+        })
       }
     }
   ]
-
-  // if (route.path.includes('productpage')) {
-  //   items.value.push({
-  //     label: 'Product Details',
-  //     command: () => {
-  //       router.push({
-  //         path: '/productpage',
-  //         query: { currentProduct: route.query.currentProduct, search: searchParam }
-  //       })
-  //     }
-  //   })
-  // }
 })
+
+const tabs = ref([
+  { title: 'Tab 1', content: 'Tab 1 Content' },
+  { title: 'Tab 2', content: 'Tab 2 Content' },
+  { title: 'Tab 3', content: 'Tab 3 Content' }
+])
 </script>
 
 <style scoped>
 .product-image {
   display: block;
   margin: auto auto;
+}
+.tabView {
+  text-decoration: none;
 }
 </style>

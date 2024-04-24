@@ -8,8 +8,9 @@
       <!-- TODO: Header 来显示当前商品的种类等等信息 -->
       <h1 class="ms-3">Alienware</h1>
       <Divider />
-      <div class="col-sm-2 bg-primary"><Sidebar></Sidebar></div>
-      <div class="col-sm-10 bg-warning"><Products></Products></div>
+      <!-- <div class="col-sm-2 bg-primary"><Sidebar></Sidebar></div> -->
+      <!-- <div class="col-sm-10 bg-warning"><Products></Products></div> -->
+      <div class="col-sm-10 bg-warning"><DefaultProduct></DefaultProduct></div>
     </div>
   </div>
 </template>
@@ -23,5 +24,6 @@ export default {
 <script lang="ts" setup>
 import Sidebar from '@/pages/Sidebar.vue'
 import Products from '@/pages/Product/Products.vue'
+import DefaultProduct from '@/pages/Product/DefaultProduct.vue'
 </script>
 <style scoped></style>

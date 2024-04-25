@@ -222,7 +222,7 @@
               </g>
             </svg>
             <!-- TODO: 讲这个名字改成用户名动态展示！ -->
-            <span class="font-bold">Welcome SDGHSDAS</span>
+            <span class="font-bold">Welcome {{ currentUser.nickName }}</span>
           </div>
         </template>
         <!-- TODO: 完成router的跳跃，还有各种种类
@@ -643,8 +643,8 @@
             <span>Theme</span>
           </div>
           <div v-if="isLogin" class="hover-effect-div">
-            <span><i class="pi pi-cog" style="font-size: 1.5rem"></i></span>
-            <span>Account Settings</span>
+            <span><i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i></span>
+            <span @click="goShoppingCart" class="shoppingCart">Your Cart</span>
           </div>
           <div v-if="isLogin" class="signout hover-effect-div d-flex justify-content-start">
             <!-- TODO: 写一个注销功能 -->
@@ -845,6 +845,7 @@ watch(keywords, (newVal) => {
   }
 })
 
+// Filter查看特定种类产品
 const goProducts = (category: string) => {
   console.log(category)
   let keywords = ''
@@ -887,9 +888,18 @@ const goProducts = (category: string) => {
     })
     .then((products) => {
       router.push('/home/products').then(() => {
-        emitter.emit('getProductsByCategory', { data: products })
+        emitter.emit('getProductsByCategory', { data: products, keyword: keywords })
       })
     })
+}
+
+// TODO: sssss
+// 查看购物车
+const goShoppingCart = () => {
+  // router.push('/cart').then(() => {
+  //   emitter.emit('currentUser', { currentUser: currentUser })
+  // })
+  router.push('/cart')
 }
 
 // 实现点击搜索结果外部，搜索框消失，点击搜索结果，恢复搜索结果
@@ -959,5 +969,9 @@ const toggle = (event: MouseEvent) => {
 
 .category:hover {
   background-color: #dae6ed;
+}
+
+.shoppingCart {
+  cursor: pointer;
 }
 </style>

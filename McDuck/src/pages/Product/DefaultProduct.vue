@@ -57,15 +57,6 @@
                   <!-- 商品价格，购买按钮，收藏按钮 -->
                   <div class="d-flex flex-column gap-4 mt-4">
                     <span class="h4 font-weight-bold text-dark">${{ product.price }}</span>
-                    <div class="product-actions d-flex gap-2">
-                      <Button
-                        icon="pi pi-shopping-cart"
-                        label="Buy Now"
-                        :disabled="product.stock_quantity < 0"
-                        class="flex-grow-1 white-space-nowrap"
-                      ></Button>
-                      <Button icon="pi pi-heart" outlined class="flex-grow-1"></Button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -79,7 +70,7 @@
 
 <script lang="ts">
 export default {
-  name: 'Products'
+  name: 'DefaultProduct'
 }
 </script>
 
@@ -101,16 +92,6 @@ let keyword = ref('')
 const layout = ref('grid')
 let isReady = ref(false)
 let stopGetRandomProducts = ref(false)
-
-let checked = ref(false)
-const sorting = ref()
-const sortOption = ref([
-  { name: 'Price Low-High', code: 'NY' },
-  { name: 'Price High-Low', code: 'RM' },
-  { name: 'Rating Low-High', code: 'LDN' },
-  { name: 'Rating High-Low', code: 'IST' },
-  { name: 'Best Sellers', code: 'PRS' }
-])
 
 onBeforeMount(() => {
   if (!skipRandomProducts.value) {

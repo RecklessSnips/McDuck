@@ -3,9 +3,7 @@ package com.example.mcduckshoppingwebsite.Service;
 import com.example.mcduckshoppingwebsite.Entity.Product;
 import com.example.mcduckshoppingwebsite.Repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 

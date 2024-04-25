@@ -20,6 +20,14 @@
       <Divider></Divider>
       <p>{{ product.description }}</p>
     </div>
+
+    <div class="d-flex justify-content-center">
+      <Toast />
+      <button v-if="isLogin" @click="addCart(currentUser, product)" class="btn btn-outline-success">
+        Add to Cart
+      </button>
+      <h2 v-if="!isLogin">Please login to buy this product!</h2>
+    </div>
   </div>
 </template>
 
@@ -34,16 +42,26 @@ import Breadcrumb from 'primevue/breadcrumb'
 import { ref, reactive, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import emitter from '@/util/emitter'
+import { useToast } from 'primevue/usetoast'
 // Store (Pinia)
 import { useCurrentUserStore } from '@/stores/currentUser'
 import { storeToRefs } from 'pinia'
+
+// Hook
+import useCurrentUser from '@/hooks/useCurrentUser'
 
 const route = useRoute()
 const router = useRouter()
 
 const currentUserStore = useCurrentUserStore()
+const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
+
+const toast = useToast()
+
 let { skipRandomProducts } = storeToRefs(currentUserStore)
 let stopGetRandomProducts = ref(false)
+
+const URL = 'http://localhost:8080'
 
 // 接受传过来的商品
 interface Product {
@@ -132,18 +150,41 @@ watchEffect(() => {
         // 保持当前搜索记录
         router.push('/').then(() => {
           emitter.emit('getProductsByCategory', { keywords: searchParam.value })
-          // stopGetRandomProducts.value = true
         })
       }
     }
   ]
 })
 
-const tabs = ref([
-  { title: 'Tab 1', content: 'Tab 1 Content' },
-  { title: 'Tab 2', content: 'Tab 2 Content' },
-  { title: 'Tab 3', content: 'Tab 3 Content' }
-])
+const addCart = (currentUser: any, product: Product) => {
+  let cart = {
+    user: currentUser,
+    product: product
+  }
+  console.log(currentUser)
+  console.log(product)
+  console.log(cart)
+  fetch(`${URL}/api/addCart`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(cart)
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((data) => {
+      console.log('If insereted into the Cart:', data)
+      toast.add({
+        severity: 'success',
+        summary: 'Product Added!',
+        detail: '1 Product add into cart ',
+        life: 2000
+      })
+    })
+}
 </script>
 
 <style scoped>

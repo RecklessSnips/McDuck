@@ -32,6 +32,9 @@
         />
       </template>
     </Toolbar>
+    <!-- TODO: Header 来显示当前商品的种类等等信息 -->
+    <h1 class="ms-3">{{ title }}</h1>
+    <Divider />
     <div v-if="isReady" class="card">
       <DataView :value="productList" :layout="layout">
         <template #header>
@@ -158,15 +161,6 @@
                   <!-- 商品价格，购买按钮，收藏按钮 -->
                   <div class="d-flex flex-column gap-4 mt-4">
                     <span class="h4 font-weight-bold text-dark">${{ product.price }}</span>
-                    <div class="product-actions d-flex gap-2">
-                      <Button
-                        icon="pi pi-shopping-cart"
-                        label="Buy Now"
-                        :disabled="product.stock_quantity < 0"
-                        class="flex-grow-1 white-space-nowrap"
-                      ></Button>
-                      <Button icon="pi pi-heart" outlined class="flex-grow-1"></Button>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -10,6 +10,7 @@
       <!-- <div v-if="showDeafult" class="col-sm-10 bg-warning"><DefaultProduct></DefaultProduct></div> -->
       <!-- <div v-if="!showDeafult" class="col-sm-10 bg-warning"><Product></Product></div> -->
       <div class="col-sm-10 bg-warning"><DefaultProduct></DefaultProduct></div>
+      <!-- <div class="col-sm-10 bg-warning"><Products></Products></div> -->
     </div>
   </div>
 </template>

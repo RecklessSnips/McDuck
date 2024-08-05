@@ -5,6 +5,7 @@ import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
 import ProductPage from '@/pages/Product/ProductPage.vue'
 import Product from '@/pages/Product/Products.vue'
+import DefaultProduct from '@/pages/Product/DefaultProduct.vue'
 import Cart from '@/pages/Cart.vue'
 
 const router = createRouter({
@@ -19,7 +20,8 @@ const router = createRouter({
       children: [
         {
           path: 'products',
-          component: Product,
+          // TODO: 修改回product
+          component: DefaultProduct,
           meta: { requiresHeader: true, isDefault: false }
         }
       ]

@@ -663,7 +663,7 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, watch, watchEffect, onMounted } from 'vue'
+import { ref, inject, watch, watchEffect, onMounted } from 'vue'
 import _ from 'lodash'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import emitter from '@/util/emitter'
@@ -738,7 +738,8 @@ const hideSiderbar = () => {
 
 const goHome = () => {
   router.push('/')
-  // window.location.reload()
+  // 只刷新商品
+  emitter.emit('getProductsByCategory', { data: undefined, keyword: undefined })
 }
 
 const login = () => {
@@ -812,7 +813,10 @@ const handleInput = (event: any) => {
 
 // 查询某个特定种类的产品
 const setCategory = (result: string) => {
-  keywords.value = result
+  if (result.trim() == '') {
+    return
+  }
+  keywords.value = result.trim()
   results.value = []
   fetch(`${URL}/api/searchProductByCategory`, {
     method: 'POST',
@@ -875,6 +879,8 @@ const goProducts = (category: string) => {
     keywords = 'CoffeeMaker'
   } else if (category === 'AirFryer') {
     keywords = 'AirFryer'
+  } else if (category === 'Outdoor') {
+    keywords = 'Outdoor'
   }
   fetch(`${URL}/api/get${keywords}`, {
     method: 'GET',

@@ -195,6 +195,7 @@ let productList = reactive<Product[]>([])
 let keyword = ref('')
 const layout = ref('grid')
 let isReady = ref(false)
+let title = ref('')
 let stopGetRandomProducts = ref(false)
 
 let checked = ref(false)

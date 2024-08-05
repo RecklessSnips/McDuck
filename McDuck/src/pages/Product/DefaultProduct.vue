@@ -1,7 +1,41 @@
 <!-- 这个作为默认的展示商品区 -->
 <template>
-  <div>
-    <div v-if="isReady" class="card">
+  <div v-cloak>
+    <!-- 用toolbar来装这些小功能，可以选择
+    Dropdown，splitbutton -->
+    <Toolbar>
+      <template #start>
+        <p style="margin: 0">{{ productList.length }} Results</p>
+      </template>
+
+      <template #end>
+        <InputSwitch
+          v-model="checked"
+          :pt="{
+            root: {
+              style: 'width: 40px; height:20px'
+            }
+          }"
+        />
+        <span class="switchtext">In Stock</span>
+        <Dropdown
+          v-model="sorting"
+          :options="sortOption"
+          optionLabel="name"
+          placeholder="Sort by"
+          :pt="{
+            list: {
+              style: 'padding-left: 1rem'
+            }
+          }"
+          class="dropdown w-full md:w-14rem"
+        />
+      </template>
+    </Toolbar>
+    <!-- TODO: Header 来显示当前商品的种类等等信息 -->
+    <h1 class="ms-3">{{ title }}</h1>
+    <Divider />
+    <div class="card">
       <DataView :value="productList" :layout="layout">
         <template #grid="slotProps">
           <div class="row g-0">
@@ -75,7 +109,16 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, onBeforeMount, onUnmounted } from 'vue'
+import {
+  ref,
+  provide,
+  reactive,
+  watch,
+  onBeforeMount,
+  onUnmounted,
+  onMounted,
+  onUpdated
+} from 'vue'
 import emitter from '@/util/emitter'
 import router from '@/router'
 
@@ -87,17 +130,101 @@ const currentUserStore = useCurrentUserStore()
 let { skipRandomProducts } = storeToRefs(currentUserStore)
 
 const URL = 'http://localhost:8080'
-let productList = reactive<Product[]>([])
+let productList = ref<Product[]>([])
 let keyword = ref('')
 const layout = ref('grid')
 let isReady = ref(false)
-let stopGetRandomProducts = ref(false)
 
-onBeforeMount(() => {
-  if (!skipRandomProducts.value) {
-    isReady.value = true
-    console.log(isReady.value)
-    getRandomProducts()
+let checked = ref(false)
+let title = ref('')
+
+const sorting = ref()
+const sortOption = ref([
+  { name: 'Price Low-High', code: 'priceLowHigh' },
+  { name: 'Price High-Low', code: 'priceHighLow' },
+  { name: 'Rating Low-High', code: 'ratingLowHigh' },
+  { name: 'Rating High-Low', code: 'ratingHighLow' },
+  { name: 'Best Sellers', code: 'bestSellers' }
+])
+
+// Watch for sorting changes and apply sorting
+watch(sorting, (newSort) => {
+  if (newSort) {
+    sortProductList(newSort.code)
+  }
+})
+
+watch(checked, (newChecked) => {
+  if (newChecked) {
+    productList.value = productList.value.filter((product) => product.stock_quantity > 0)
+  } else {
+    productList.value = [...productList.value]
+  }
+})
+
+const sortProductList = (sortCode: string) => {
+  switch (sortCode) {
+    case 'priceLowHigh':
+      productList.value.sort((a, b) => a.price - b.price)
+      break
+    case 'priceHighLow':
+      productList.value.sort((a, b) => b.price - a.price)
+      break
+    case 'ratingLowHigh':
+      productList.value.sort((a, b) => a.review_star - b.review_star)
+      break
+    case 'ratingHighLow':
+      productList.value.sort((a, b) => b.review_star - a.review_star)
+      break
+    case 'bestSellers':
+      // 这里假设按库存数量从高到低排序
+      productList.value.sort((a, b) => a.stock_quantity - b.stock_quantity)
+      break
+    default:
+      break
+  }
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    if (!skipRandomProducts.value) {
+      console.log('WhattttTTT')
+      getRandomProducts()
+    }
+  }, 10)
+})
+
+/*
+ 每次返回主页，会加载这个component，所以这个emitter会被调用
+ 所以这里需要判断：
+ 1.是否是从 Header 进行的搜索，从而传来的
+ 2.还是从 productPage 点击了（返回搜索记录）按钮，返回的
+ 两者返回的数据不一样
+ */
+emitter.on('getProductsByCategory', (data: any) => {
+  console.log(data)
+  skipRandomProducts.value = true
+  // 判断是否是从某个产品返回来的，为了保证当前搜索记录
+  if (typeof data.data === 'undefined') {
+    if (typeof data.keywords === 'undefined') {
+      console.log('No keywords! Perform randomSearch()')
+      isReady.value = true
+      productList.value.splice(0, productList.value.length)
+      getRandomProducts()
+    } else if (data.keywords != '') {
+      console.log('kkkkkk: ', data.keywords)
+      setCategory(data.keywords)
+      data.keywords = ''
+    }
+  } else {
+    console.log('Products received!!!', data.data)
+    console.log('Keywords: ', data.keywords)
+    keyword.value = data.keywords
+    console.log('keyword:', keyword.value)
+    // 清空当前搜索的结果
+    productList.value.splice(0, productList.value.length)
+    // 赋值给 productList，更新列表
+    productList.value = data.data
   }
 })
 
@@ -132,7 +259,7 @@ export interface Product {
 }
 
 // 点击后，跳到当前商品的组件
-const checkProduct = (product: Product) => {
+const checkProduct = async (product: Product) => {
   router.push({
     path: '/productpage',
     query: {
@@ -143,6 +270,8 @@ const checkProduct = (product: Product) => {
 }
 
 const getRandomProducts = () => {
+  // 检查 stopGetRandomProducts 标志位
+  // isReady.value = true
   fetch(`${URL}/api/getRandomProduct`, {
     method: 'GET',
     credentials: 'include',
@@ -154,51 +283,11 @@ const getRandomProducts = () => {
       return response.json()
     })
     .then((products) => {
-      Object.assign(productList, products)
-      console.log(productList)
+      // Object.assign(productList, products)
+      productList.value.push(...products)
+      console.log(productList.value)
     })
 }
-
-/*
- 每次返回主页，会加载这个component，所以这个emitter会被调用
- 所以这里需要判断：
- 1.是否是从 Header 进行的搜索，从而传来的
- 2.还是从 productPage 点击了（返回搜索记录）按钮，返回的
- 两者返回的数据不一样
- */
-emitter.on('getProductsByCategory', (data: any) => {
-  console.log(data)
-  console.log('data', data.data)
-  console.log(typeof data.data === 'undefined')
-  // 判断是否是从某个产品返回来的，为了保证当前搜索记录
-  if (typeof data.data === 'undefined') {
-    if (typeof data.keywords === 'undefined') {
-      console.log('No keywords! Perform randomSearch()')
-      isReady.value = true
-      productList.splice(0, productList.length)
-      getRandomProducts()
-    } else if (data.keywords != '') {
-      console.log('kkkkkk: ', data.keywords)
-      setCategory(data.keywords)
-      data.keywords = ''
-    }
-  } else {
-    console.log('Products recieved!!!', data.data)
-    console.log('Keywords: ', data.keywords)
-    keyword.value = data.keywords
-    console.log('keyword:', keyword.value)
-    // 清空当前搜索的结果，
-    productList.splice(0, productList.length)
-    // 赋值给productList，更新列表
-    Object.assign(productList, data.data)
-    // 调成准备好展示
-    isReady.value = true
-    // 不要调用random方法
-    stopGetRandomProducts.value = true
-    data.keywords = ''
-    console.log(isReady.value)
-  }
-})
 
 const setCategory = (result: string) => {
   console.log('result is: ', result)
@@ -217,10 +306,10 @@ const setCategory = (result: string) => {
       console.log('Searched catagory: ', data)
       // 阻止再次调用getRandomProduct函数
       skipRandomProducts.value = true
-      productList.splice(0, productList.length)
+      productList.value.splice(0, productList.value.length)
       Object.assign(productList, data)
       isReady.value = true
-      stopGetRandomProducts.value = true
+      // stopGetRandomProducts.value = true
       console.log(productList)
     })
 }
@@ -228,10 +317,17 @@ const setCategory = (result: string) => {
 // 在组件卸载时解绑事件
 onUnmounted(() => {
   emitter.off('getProductsByCategory')
+  skipRandomProducts.value = false
 })
+
+provide('getRandomProducts', getRandomProducts)
 </script>
 
 <style scoped>
+[v-cloak] {
+  display: none;
+}
+
 .dropdown {
   width: 200px;
   padding: 0;

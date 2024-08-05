@@ -2,7 +2,7 @@
 <template>
   <div class="d-flex row mx-5 mt-5">
     <!-- 图片 -->
-    <Breadcrumb :model="items"></Breadcrumb>
+    <Breadcrumb :model="items"> </Breadcrumb>
     <div class="col-sm-6">
       <img
         class="product-image"
@@ -39,7 +39,8 @@ export default {
 
 <script lang="ts" setup>
 import Breadcrumb from 'primevue/breadcrumb'
-import { ref, reactive, watchEffect } from 'vue'
+import api from '@/api/test.js'
+import { ref, reactive, watchEffect, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import emitter from '@/util/emitter'
 import { useToast } from 'primevue/usetoast'
@@ -62,6 +63,10 @@ let { skipRandomProducts } = storeToRefs(currentUserStore)
 let stopGetRandomProducts = ref(false)
 
 const URL = 'http://localhost:8080'
+
+onMounted(() => {
+  getBreadCrumb(product)
+})
 
 // 接受传过来的商品
 interface Product {
@@ -133,6 +138,98 @@ interface BreadcrumbItem {
 }
 
 const items = ref<BreadcrumbItem[]>([])
+// let items = ref<string[]>([])
+
+const getBreadCrumb = (product: Product) => {
+  const category_string = product.category.toLowerCase()
+  let category = ''
+
+  const addItem = (label: string) => {
+    items.value.push({
+      label,
+      command: async () => {
+        const products = await api.getCategoryProducts(label)
+        console.log(products)
+        router.push('/home/products').then(() => {
+          stopGetRandomProducts.value = true
+          emitter.emit('getProductsByCategory', { data: products, keyword: '' })
+        })
+      }
+    })
+  }
+
+  if (category_string.includes('romance')) {
+    category = 'romance'
+    addItem('Books')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('science')) {
+    category = 'science'
+    addItem('Books')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('starwars')) {
+    category = 'starwars'
+    addItem('Books')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('thriller')) {
+    category = 'thriller'
+    addItem('Books')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('computer')) {
+    category = 'computer'
+    addItem('Electronic')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('headset')) {
+    category = 'headset'
+    addItem('Electronic')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('speaker')) {
+    category = 'speaker'
+    addItem('Electronic')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('tv')) {
+    category = 'tv'
+    addItem('Electronic')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('menclothes')) {
+    category = 'menclothes'
+    addItem('Clothes')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('womenclothes')) {
+    category = 'womenclothes'
+    addItem('Clothes')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('refrigerator')) {
+    category = 'refrigerator'
+    addItem('Kitchen')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('coffeemaker')) {
+    category = 'coffeemaker'
+    addItem('Kitchen')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('airfryer')) {
+    category = 'airfryer'
+    addItem('Kitchen')
+    addItem(category)
+    addItem(product.product_name)
+  } else if (category_string.includes('outdoor')) {
+    category = 'outdoor'
+    addItem('Sports')
+    addItem(category)
+    addItem(product.product_name)
+  }
+}
 
 watchEffect(() => {
   const searchParam = ref(route.query.searchKeywords)
@@ -142,15 +239,6 @@ watchEffect(() => {
       label: 'Home',
       command: () => {
         router.push('/')
-      }
-    },
-    {
-      label: 'Search',
-      command: () => {
-        // 保持当前搜索记录
-        router.push('/').then(() => {
-          emitter.emit('getProductsByCategory', { keywords: searchParam.value })
-        })
       }
     }
   ]

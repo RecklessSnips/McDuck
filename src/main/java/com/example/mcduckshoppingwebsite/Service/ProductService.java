@@ -14,7 +14,8 @@ public class ProductService {
     private ProductRepo productRepo;
 
     public List<String> searchProduct(String keyword){
-        return productRepo.searchProduct(keyword);
+//        return productRepo.searchProduct(keyword);
+        return null;
     }
 
     public List<Product> searchProductByCategory(String keyword){
@@ -36,6 +37,10 @@ public class ProductService {
     // 拿取书
     public List<Product> getRomanceBooks(){
         return productRepo.getRomanceBooks();
+    }
+
+    public List<Product> getCategory(String category){
+        return productRepo.getCategory(category);
     }
 
     public List<Product> getScienceBooks(){
@@ -87,6 +92,10 @@ public class ProductService {
 
     public List<Product> getAirFryer(){
         return productRepo.getAirFryer();
+    }
+
+    public List<Product> getOutdoor(){
+        return productRepo.getOutdoor();
     }
 
 }

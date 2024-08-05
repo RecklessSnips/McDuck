@@ -15,49 +15,58 @@ public class ProductRepo {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public List<String> searchProduct(String keyword){
-        String sql = "SELECT * FROM Product WHERE category LIKE ? OR product_name LIKE ? LIMIT 8";
-
-        StringBuilder builder = new StringBuilder();
-        for(char c: keyword.replaceAll(" ", "").toCharArray()){
-            builder.append("%").append(c);
-        }
-        builder.append("%");
-        System.out.println("Keywords: " + builder);
-        // 填补两个 ？，都用同样的pattern来搜索
-        Object[] searchPattern = new Object[]{builder.toString(), builder.toString()};
-        List<String> name = jdbcTemplate.query(sql, searchPattern, (rs, rowNum) -> rs.getString("product_name"));
-        for(String s: name){
-            System.out.println("Searched name: " + s);
-        }
-        System.out.println("-----------------------------------------------------------------------");
-        return name;
-    }
+//    public List<String> searchProduct(String keyword){
+//        String sql = "SELECT * FROM Product WHERE category LIKE ? OR product_name LIKE ? LIMIT 8";
+//
+//        StringBuilder builder = new StringBuilder();
+//        for(char c: keyword.replaceAll(" ", "").toCharArray()){
+//            builder.append("%").append(c);
+//        }
+//        builder.append("%");
+//        System.out.println("Keywords: " + builder);
+//        // 填补两个 ？，都用同样的pattern来搜索
+//        Object[] searchPattern = new Object[]{builder.toString(), builder.toString()};
+//        List<String> name = jdbcTemplate.query(sql, searchPattern, (rs, rowNum) -> rs.getString("product_name"));
+//        for(String s: name){
+//            System.out.println("Searched name: " + s);
+//        }
+//        System.out.println("-----------------------------------------------------------------------");
+//        return name;
+//    }
 
     public List<Product> searchProductByCategory(String keyword){
         String sql = "SELECT * FROM Product WHERE category LIKE ? OR product_name LIKE ? LIMIT 20";
-        StringBuilder builder = new StringBuilder();
-        for(char c: keyword.replaceAll(" ", "").toCharArray()){
-            builder.append("%").append(c);
+
+        // 如果输入为null （暂时没用）
+        if(keyword.isEmpty()){
+            List<Product> products = getRandomProducts();
+            System.out.println("Search pattern is null, return random products");
+            return products;
+        }else{
+            StringBuilder builder = new StringBuilder();
+            System.out.println(keyword);
+            builder.append("%");
+            builder.append(keyword.replaceAll(" ", "%"));
+            builder.append("%");
+            System.out.println(builder.toString());
+            Object[] searchPattern = new Object[]{builder.toString(), builder.toString()};
+            List<Product> products = jdbcTemplate.query(sql, searchPattern,
+                    (rs, rowNum) -> new Product(
+                            rs.getString("product_id"),
+                            rs.getString("category"),
+                            rs.getString("product_name"),
+                            rs.getString("author"),
+                            rs.getString("description"),
+                            rs.getDouble("price"),
+                            rs.getInt("stock_quantity"),
+                            rs.getInt("review_star"),
+                            rs.getString("review_message"),
+                            rs.getString("image_path"),
+                            rs.getTimestamp("listing_date").toLocalDateTime()
+                    ));
+            System.out.println("M_37: Searched products: " + products);
+            return products;
         }
-        builder.append("%");
-        Object[] searchPattern = new Object[]{builder.toString(), builder.toString()};
-        List<Product> products = jdbcTemplate.query(sql, searchPattern,
-                (rs, rowNum) -> new Product(
-                        rs.getString("product_id"),
-                        rs.getString("category"),
-                        rs.getString("product_name"),
-                        rs.getString("author"),
-                        rs.getString("description"),
-                        rs.getDouble("price"),
-                        rs.getInt("stock_quantity"),
-                        rs.getInt("review_star"),
-                        rs.getString("review_message"),
-                        rs.getString("image_path"),
-                        rs.getTimestamp("listing_date").toLocalDateTime()
-                ));
-        System.out.println("Searched products: " + products);
-        return products;
     }
 
     public boolean addProduct(Product product){
@@ -115,6 +124,27 @@ public class ProductRepo {
             System.out.println("Retrieved products: " + product.getProduct_name());
         }
         System.out.println("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
+        return products;
+    }
+
+    public List<Product> getCategory(String category){
+        String sql = "SELECT * FROM Product WHERE category LIKE ?";
+        String searchPattern = "%" + category + "%";
+        List<Product> products = jdbcTemplate.query(sql, new Object[]{searchPattern},
+                (rs, rowNum) -> new Product(
+                        rs.getString("product_id"),
+                        rs.getString("category"),
+                        rs.getString("product_name"),
+                        rs.getString("author"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock_quantity"),
+                        rs.getInt("review_star"),
+                        rs.getString("review_message"),
+                        rs.getString("image_path"),
+                        rs.getTimestamp("listing_date").toLocalDateTime()
+                ));
+        System.out.println(products.size());
         return products;
     }
 
@@ -353,6 +383,25 @@ public class ProductRepo {
     public List<Product> getAirFryer(){
         String sql = "SELECT * FROM Product WHERE category LIKE ?";
         List<Product> products = jdbcTemplate.query(sql, new Object[]{"%AirFryer%"},
+                (rs, rowNum) -> new Product(
+                        rs.getString("product_id"),
+                        rs.getString("category"),
+                        rs.getString("product_name"),
+                        rs.getString("author"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock_quantity"),
+                        rs.getInt("review_star"),
+                        rs.getString("review_message"),
+                        rs.getString("image_path"),
+                        rs.getTimestamp("listing_date").toLocalDateTime()
+                ));
+        return products;
+    }
+
+    public List<Product> getOutdoor(){
+        String sql = "SELECT * FROM Product WHERE category LIKE ?";
+        List<Product> products = jdbcTemplate.query(sql, new Object[]{"%Outdoor%"},
                 (rs, rowNum) -> new Product(
                         rs.getString("product_id"),
                         rs.getString("category"),

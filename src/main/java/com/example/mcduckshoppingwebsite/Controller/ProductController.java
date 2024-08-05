@@ -60,6 +60,12 @@ public class ProductController {
 
     /*  用Filter过滤所选择的产品种类   */
 
+    @PostMapping("/api/getCategory")
+    public ResponseEntity<List<Product>> getCategory(@RequestBody String category){
+        System.out.println("Category: " + category);
+        return new ResponseEntity<>(productService.getCategory(category.replace("\"", "")), HttpStatus.OK);
+    }
+
     /*
     Romance
     Science
@@ -147,4 +153,8 @@ public class ProductController {
     /* Sports:
         Outdoor
      */
+    @GetMapping("/api/getOutdoor")
+    public ResponseEntity<List<Product>> getOutdoor(){
+        return new ResponseEntity<>(productService.getOutdoor(), HttpStatus.OK);
+    }
 }

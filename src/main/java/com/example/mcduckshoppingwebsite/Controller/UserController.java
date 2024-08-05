@@ -39,6 +39,7 @@ public class UserController {
                                           HttpServletRequest request,
                                           HttpServletResponse response){
         session.invalidate();
+        // 在服务器端接受所有的cookie
         Cookie[] cookies = request.getCookies();
         boolean ifLogOut = false;
         // 拿到当前登陆的用户

@@ -629,7 +629,7 @@
           <Divider v-if="isLogin" />
           <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-shop" style="font-size: 1.5rem"></i></span>
-            <span>Your Store</span>
+            <span @click="goStore" class="goStore">Your Store</span>
           </div>
           <div v-if="isLogin" class="hover-effect-div">
             <span
@@ -645,6 +645,10 @@
           <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i></span>
             <span @click="goShoppingCart" class="shoppingCart">Your Cart</span>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
+            <span><i class="pi pi-cart-arrow-down" style="font-size: 1.5rem"></i></span>
+            <span @click="goOrderHistory" class="shoppingCart">Order history</span>
           </div>
           <div v-if="isLogin" class="signout hover-effect-div d-flex justify-content-start">
             <!-- TODO: 写一个注销功能 -->
@@ -908,6 +912,14 @@ const goShoppingCart = () => {
   router.push('/cart')
 }
 
+const goOrderHistory = () => {
+  router.push('/orders')
+}
+
+const goStore = () => {
+  router.push('/store')
+}
+
 // 实现点击搜索结果外部，搜索框消失，点击搜索结果，恢复搜索结果
 const showResults = () => {
   showSearchResults.value = true
@@ -978,6 +990,10 @@ const toggle = (event: MouseEvent) => {
 }
 
 .shoppingCart {
+  cursor: pointer;
+}
+
+.goStore {
   cursor: pointer;
 }
 </style>

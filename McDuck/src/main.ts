@@ -1,7 +1,4 @@
 // import './assets/main.css'
-import 'primevue/resources/themes/saga-blue/theme.css' // theme
-import 'primevue/resources/primevue.min.css' // core css
-import 'primeicons/primeicons.css' // icons
 
 // Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -16,6 +13,17 @@ import router from './router'
 import { clickOutside } from '@/util/clickOutside.ts'
 
 import PrimeVue from 'primevue/config'
+
+// Theme, 可替换
+import 'primevue/resources/themes/saga-blue/theme.css'
+// 核心import
+import 'primevue/resources/primevue.min.css'
+// Icons
+import 'primeicons/primeicons.css'
+
+// 如果使用 PrimeFlex，可以额外引入 PrimeFlex 样式
+import 'primeflex/primeflex.css'
+
 import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
 import Image from 'primevue/image'

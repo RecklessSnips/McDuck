@@ -6,9 +6,6 @@
     <!-- TODO: 加一个coursal让它变得更好看 -->
     <div class="row mx-1 mt-3 d-flex justify-content-evenly">
       <!-- <div class="col-sm-2 bg-primary"><Sidebar></Sidebar></div> -->
-      <!-- <div class="col-sm-10 bg-warning"><Products></Products></div> -->
-      <!-- <div v-if="showDeafult" class="col-sm-10 bg-warning"><DefaultProduct></DefaultProduct></div> -->
-      <!-- <div v-if="!showDeafult" class="col-sm-10 bg-warning"><Product></Product></div> -->
       <div class="col-sm-10 bg-warning"><DefaultProduct></DefaultProduct></div>
       <!-- <div class="col-sm-10 bg-warning"><Products></Products></div> -->
     </div>
@@ -25,6 +22,7 @@ export default {
 import Sidebar from '@/pages/Sidebar.vue'
 import Products from '@/pages/Product/Products.vue'
 import Product from '@/pages/Product/Products.vue'
+import Store from '@/pages/Store.vue'
 import DefaultProduct from '@/pages/Product/DefaultProduct.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'

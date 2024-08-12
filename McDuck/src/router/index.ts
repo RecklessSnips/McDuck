@@ -5,6 +5,7 @@ import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
 import ProductPage from '@/pages/Product/ProductPage.vue'
 import Product from '@/pages/Product/Products.vue'
+import OrderHistory from '@/pages/OrderHistory.vue'
 import DefaultProduct from '@/pages/Product/DefaultProduct.vue'
 import Cart from '@/pages/Cart.vue'
 
@@ -41,11 +42,16 @@ const router = createRouter({
     {
       path: '/store',
       component: Store,
-      meta: { requiresHeader: true }
+      meta: { requiresHeader: false }
     },
     {
       path: '/cart',
       component: Cart,
+      meta: { requiresHeader: true }
+    },
+    {
+      path: '/orders',
+      component: OrderHistory,
       meta: { requiresHeader: true }
     },
     {

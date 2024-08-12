@@ -337,32 +337,31 @@ provide('getRandomProducts', getRandomProducts)
   margin-right: 20px;
 }
 
-.product.card {
-  /* 高度充满，让内部元素不会溢出 */
+/* .product.card {
   height: 100%;
   widows: 150%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Distributes space evenly */
-}
-.product-content {
-  flex-grow: 1; /* Allows this div to expand to fill available space */
+  justify-content: space-between;
+} */
+/* .product-content {
+  flex-grow: 1;
   display: flex;
-  align-items: center; /* Center the content vertically */
-  justify-content: center; /* Center the content horizontally */
-}
-.img-container {
-  width: 150%; /* Full width of the parent */
-  height: 260px; /* Fixed height for images */
-  overflow: hidden; /* Hides parts of the image that exceed the container size */
+  align-items: center;
+  justify-content: center;
+} */
+/* .img-container {
+  width: 150%;
+  height: 260px;
+  overflow: hidden;
   display: flex;
-  align-items: center; /* Helps center the image vertically */
-}
-.img-container img {
-  width: 100%; /* Make the image full width of the container */
-  height: auto; /* Maintain aspect ratio */
-  min-height: 100%; /* Ensures the container height is filled */
-}
+  align-items: center;
+} */
+/* .img-container img {
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+} */
 .product-actions {
   padding: 0.5rem; /* Padding around buttons */
 }

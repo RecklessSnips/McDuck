@@ -32,11 +32,11 @@ import { RouterLink } from 'vue-router'
 import { reactive } from 'vue'
 
 const links = reactive([
-  { title: 'Special Deal', content: 'Top deals', path: '/home/products/deal' },
-  { title: 'Top Stores', content: 'Top Store', path: '/home/products/topstore' },
-  { title: 'High rated', content: 'High rates', path: '/home/products/rate' },
-  { title: 'Product Condition', content: 'Condition', path: '/home/products/condition' },
-  { title: 'Product status', content: 'Status', path: '/home/products/status' }
+  { title: 'Special Deal', content: 'Top deals', path: '/home' },
+  { title: 'Top Stores', content: 'Top Store', path: '/home' },
+  { title: 'High rated', content: 'High rates', path: '/home' },
+  { title: 'Product Condition', content: 'Condition', path: '' },
+  { title: 'Product status', content: 'Status', path: '/home' }
 ])
 </script>
 

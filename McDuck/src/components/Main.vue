@@ -1,4 +1,4 @@
-<!-- 中间整个大区域，含有商城主页，购物车，店铺页面 -->
+<!-- 商城整个页面布局，上面是header，下面商城主页，购物车，店铺页面 -->
 
 <!-- TODO: 用这个Figure：https://getbootstrap.com/docs/5.3/content/typography/ -->
 <template>
@@ -7,6 +7,7 @@
     <div v-if="showHeader" class="mx-5 mt-5">
       <Header></Header>
     </div>
+    <!-- 这是同级的view，任何的统计view被routerlink导航之后都会传到这里 -->
     <router-view></router-view>
   </div>
 </template>

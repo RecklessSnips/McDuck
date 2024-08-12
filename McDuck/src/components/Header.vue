@@ -222,14 +222,101 @@
               </g>
             </svg>
             <!-- TODO: 讲这个名字改成用户名动态展示！ -->
-            <span class="font-bold">Welcome SDGHSDAS</span>
+            <span class="font-bold">Welcome {{ currentUser.nickName }}</span>
           </div>
         </template>
-        <div class="d-flex flex-column align-items-start">
-          <!-- TODO: 完成router的跳跃，还有各种种类 -->
-          <div @click="hideSiderbar"><RouterLink to="/store">Recommanded Stores</RouterLink></div>
-          <div @click="hideSiderbar"><RouterLink to="/home">Home</RouterLink></div>
-        </div>
+        <!-- TODO: 完成router的跳跃，还有各种种类
+            总共商品种类， 每个商品再次分类：
+            1. 去往商家的选项 recommanded stores
+            2. books
+              a. 小说
+              b. 漫画
+            3. electronic
+            4. fashion
+            5. homeappliance
+            6. sports
+           -->
+        <Accordion :multiple="true" :activeIndex="[0, 1, 2, 3, 4]">
+          <!-- Books -->
+          <AccordionTab
+            header="Books"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(book.name)" class="category" v-for="book in books">
+                {{ book.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Electronic -->
+          <AccordionTab
+            header="Electronic"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(e.name)" class="category" v-for="e in electronic">
+                {{ e.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Fashion -->
+          <AccordionTab
+            header="Clothes"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(c.name)" class="category" v-for="c in cloth">
+                {{ c.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Home Appliance -->
+          <AccordionTab
+            header="Kitchen"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(k.name)" class="category" v-for="k in kitchen">
+                {{ k.name }}
+              </div>
+            </div>
+          </AccordionTab>
+
+          <!-- Sports -->
+          <AccordionTab
+            header="Sports"
+            :pt="{
+              headerAction: {
+                style: 'text-decoration: none; color: black'
+              }
+            }"
+          >
+            <div @click="hideSiderbar">
+              <div @click="goProducts(s.name)" class="category" v-for="s in sports">
+                {{ s.name }}
+              </div>
+            </div>
+          </AccordionTab>
+        </Accordion>
       </Sidebar>
       <!-- 到时加一个 icon="pi pi-arrow-right"， 换一个 Icon -->
       <div class="d-flex justify-content-start align-items-center">
@@ -454,22 +541,33 @@
       </div>
     </div>
     <!-- 搜索框 -->
+    <!-- TODO: 点击enter或者serch按钮可以对当前搜索框内的东西进行搜索！ -->
     <div class="col-sm-6 bg-danger d-flex justify-content-center align-items-center">
       <!-- 开启相对定位，来帮助搜索结果来锁定位置 -->
-      <div class="position-relative">
+      <div class="position-relative" v-click-outside="hideResults">
         <IconField>
-          <InputText v-model="keywords" type="text" id="search" class="searchBox"></InputText>
+          <InputText
+            v-model="keywords"
+            type="text"
+            id="search"
+            class="searchBox"
+            @keyup.enter="setCategory(keywords)"
+            @input="handleInput"
+            @focus="showResults"
+          ></InputText>
           <InputIcon class="pi pi-search"></InputIcon>
         </IconField>
         <!-- 用来展示所搜索的结果 -->
-        <div v-show="results.length" class="list-group position-absolute z-3">
-          <a
+        <div v-show="showSearchResults && results.length" class="list-group position-absolute z-3">
+          <span
             v-for="(result, index) in results"
+            @click.prevent="setCategory(result)"
             :key="index"
             href="#"
-            class="list-group-item list-group-item-action"
-            >{{ result }}</a
+            class="searchResults list-group-item list-group-item-action"
           >
+            {{ result }}
+          </span>
         </div>
       </div>
     </div>
@@ -531,7 +629,7 @@
           <Divider v-if="isLogin" />
           <div v-if="isLogin" class="hover-effect-div">
             <span><i class="pi pi-shop" style="font-size: 1.5rem"></i></span>
-            <span>Your Store</span>
+            <span @click="goStore" class="goStore">Your Store</span>
           </div>
           <div v-if="isLogin" class="hover-effect-div">
             <span
@@ -545,8 +643,12 @@
             <span>Theme</span>
           </div>
           <div v-if="isLogin" class="hover-effect-div">
-            <span><i class="pi pi-cog" style="font-size: 1.5rem"></i></span>
-            <span>Account Settings</span>
+            <span><i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i></span>
+            <span @click="goShoppingCart" class="shoppingCart">Your Cart</span>
+          </div>
+          <div v-if="isLogin" class="hover-effect-div">
+            <span><i class="pi pi-cart-arrow-down" style="font-size: 1.5rem"></i></span>
+            <span @click="goOrderHistory" class="shoppingCart">Order history</span>
           </div>
           <div v-if="isLogin" class="signout hover-effect-div d-flex justify-content-start">
             <!-- TODO: 写一个注销功能 -->
@@ -565,9 +667,10 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, watchEffect } from 'vue'
-import _ from 'lodash' // Import lodash
-import { useRouter, RouterLink } from 'vue-router'
+import { ref, inject, watch, watchEffect, onMounted } from 'vue'
+import _ from 'lodash'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import emitter from '@/util/emitter'
 
 // Hook
 import useCurrentUser from '@/hooks/useCurrentUser'
@@ -575,15 +678,53 @@ import useCurrentUser from '@/hooks/useCurrentUser'
 // Store (Pinia)
 import { useCurrentUserStore } from '@/stores/currentUser'
 import { storeToRefs } from 'pinia'
+import AccordionTab from 'primevue/accordiontab'
 
 const URL = 'http://localhost:8080'
 const router = useRouter()
+const route = useRoute()
 const currentUserStore = useCurrentUserStore()
-let { ifLogin, user } = storeToRefs(currentUserStore)
+let { ifLogin, user, skipRandomProducts } = storeToRefs(currentUserStore)
 let results = ref([])
 let keywords = ref('')
+let showSearchResults = ref(false)
 
 const { visible, isLogin, username, currentUser, greeting } = useCurrentUser()
+
+const books = ref([
+  { name: 'Romance', link: '/home/products' },
+  { name: 'Science', link: '/home/products' },
+  { name: 'Star Wars', link: '/home/products' },
+  { name: 'Thriller', link: '/home/products' }
+])
+
+const electronic = ref([
+  { name: 'Computer', link: '/home/products' },
+  { name: 'Headset', link: '/home/products' },
+  { name: 'Speaker', link: '/home/products' },
+  { name: 'TV', link: '/home/products' }
+])
+
+const cloth = ref([
+  { name: 'MenClothes', link: '/home/products' },
+  { name: 'WomenClothes', link: '/home/products' }
+])
+
+const kitchen = ref([
+  { name: 'Fridge', link: '/home/products' },
+  { name: 'Coffee', link: '/home/products' },
+  { name: 'AirFryer', link: '/home/products' }
+])
+
+const sports = ref([{ name: 'Outdoor', link: '/home/products' }])
+
+onMounted(() => {
+  if (route.query.search) {
+    console.log(route.query.search)
+    keywords.value = route.query.search as string
+    debouncedSearch()
+  }
+})
 
 // 直接assign会导致打不出来，以及有bug，用 watchEffect来追踪属性，让pinia的值跟着变！
 watchEffect(() => {
@@ -601,6 +742,8 @@ const hideSiderbar = () => {
 
 const goHome = () => {
   router.push('/')
+  // 只刷新商品
+  emitter.emit('getProductsByCategory', { data: undefined, keyword: undefined })
 }
 
 const login = () => {
@@ -663,7 +806,127 @@ const debouncedSearch = _.debounce(() => {
   search()
 }, 500)
 
-watch(keywords, debouncedSearch)
+/*
+ 专门创建这个，只有当input里被输入的时候才调用
+ 如果是用搜索框点击的，不调用search方法
+*/
+const handleInput = (event: any) => {
+  keywords.value = event.target.value
+  debouncedSearch()
+}
+
+// 查询某个特定种类的产品
+const setCategory = (result: string) => {
+  if (result.trim() == '') {
+    return
+  }
+  keywords.value = result.trim()
+  results.value = []
+  fetch(`${URL}/api/searchProductByCategory`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: keywords.value
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((data) => {
+      console.log('Searched catagory: ', data)
+      /* 
+      跳到展示指定种类的页面，并且将要展示的商品和当前的搜索关键字传过去
+      为了跳到商品页面时能顺利保存当前搜索记录
+      */
+      // 阻止再次调用getRandomProduct函数
+      skipRandomProducts.value = true
+      router.push('/').then(() => {
+        emitter.emit('getProductsByCategory', { data, keywords: keywords.value })
+      })
+    })
+}
+
+watch(keywords, (newVal) => {
+  if (newVal === '') {
+    results.value = []
+  }
+})
+
+// Filter查看特定种类产品
+const goProducts = (category: string) => {
+  console.log(category)
+  let keywords = ''
+  if (category === 'Romance') {
+    keywords = 'RomanceBooks'
+  } else if (category === 'Science') {
+    keywords = 'ScienceBooks'
+  } else if (category === 'Star Wars') {
+    keywords = 'StarWarsBooks'
+  } else if (category === 'Thriller') {
+    keywords = 'ThrillerBooks'
+  } else if (category === 'Computer') {
+    keywords = 'Computers'
+  } else if (category === 'Headset') {
+    keywords = 'Headsets'
+  } else if (category === 'Speaker') {
+    keywords = 'Speakers'
+  } else if (category === 'TV') {
+    keywords = 'TVs'
+  } else if (category === 'MenClothes') {
+    keywords = 'MenClothes'
+  } else if (category === 'WomenClothes') {
+    keywords = 'WomenClothes'
+  } else if (category === 'Fridge') {
+    keywords = 'Refrigerator'
+  } else if (category === 'Coffee') {
+    keywords = 'CoffeeMaker'
+  } else if (category === 'AirFryer') {
+    keywords = 'AirFryer'
+  } else if (category === 'Outdoor') {
+    keywords = 'Outdoor'
+  }
+  fetch(`${URL}/api/get${keywords}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .then((products) => {
+      router.push('/home/products').then(() => {
+        emitter.emit('getProductsByCategory', { data: products, keyword: keywords })
+      })
+    })
+}
+
+// TODO: sssss
+// 查看购物车
+const goShoppingCart = () => {
+  // router.push('/cart').then(() => {
+  //   emitter.emit('currentUser', { currentUser: currentUser })
+  // })
+  router.push('/cart')
+}
+
+const goOrderHistory = () => {
+  router.push('/orders')
+}
+
+const goStore = () => {
+  router.push('/store')
+}
+
+// 实现点击搜索结果外部，搜索框消失，点击搜索结果，恢复搜索结果
+const showResults = () => {
+  showSearchResults.value = true
+}
+const hideResults = () => {
+  showSearchResults.value = false
+}
 
 // 小铃铛
 const bell = ref()
@@ -709,5 +972,28 @@ const toggle = (event: MouseEvent) => {
 .list-group {
   /* 跟searchbar的宽度一样 */
   width: 100%;
+}
+
+.searchResults:hover {
+  cursor: pointer;
+}
+
+.category {
+  text-decoration: none;
+  color: #e2c8a7;
+  display: block;
+  cursor: pointer;
+}
+
+.category:hover {
+  background-color: #dae6ed;
+}
+
+.shoppingCart {
+  cursor: pointer;
+}
+
+.goStore {
+  cursor: pointer;
 }
 </style>

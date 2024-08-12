@@ -1,7 +1,4 @@
 // import './assets/main.css'
-import 'primevue/resources/themes/saga-blue/theme.css' // theme
-import 'primevue/resources/primevue.min.css' // core css
-import 'primeicons/primeicons.css' // icons
 
 // Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -13,8 +10,20 @@ library.add(far)
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
+import { clickOutside } from '@/util/clickOutside.ts'
 
 import PrimeVue from 'primevue/config'
+
+// Theme, 可替换
+import 'primevue/resources/themes/saga-blue/theme.css'
+// 核心import
+import 'primevue/resources/primevue.min.css'
+// Icons
+import 'primeicons/primeicons.css'
+
+// 如果使用 PrimeFlex，可以额外引入 PrimeFlex 样式
+import 'primeflex/primeflex.css'
+
 import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
 import Image from 'primevue/image'
@@ -22,7 +31,6 @@ import FloatLabel from 'primevue/floatlabel'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
-import Badge from 'primevue/badge'
 import BadgeDirective from 'primevue/badgedirective'
 import SplitButton from 'primevue/splitbutton'
 import OverlayPanel from 'primevue/overlaypanel'
@@ -46,6 +54,11 @@ import Column from 'primevue/column'
 import ColumnGroup from 'primevue/columngroup'
 import Row from 'primevue/row'
 import Tag from 'primevue/tag'
+import Rating from 'primevue/rating'
+import Breadcrumb from 'primevue/breadcrumb'
+import TabView from 'primevue/tabview'
+import TabPanel from 'primevue/tabpanel'
+import Panel from 'primevue/panel'
 
 import App from './App.vue'
 
@@ -89,7 +102,13 @@ app.component('Column', Column)
 app.component('ColumnGroup', ColumnGroup)
 app.component('Row', Row)
 app.component('Tag', Tag)
+app.component('Rating', Rating)
+app.component('Breadcrumb', Breadcrumb)
+app.component('TabView', TabView)
+app.component('TabPanel', TabPanel)
+app.component('Panel', Panel)
 
 app.directive('badge', BadgeDirective)
+app.directive('click-outside', clickOutside)
 
 app.mount('#app')

@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Apply to all endpoints
-                .allowedOrigins("http://localhost:5173") // Allow only this origin, use "*" for all
+                .allowedOrigins("https://mc-duck.com/") // Allow only this origin, use "*" for all
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // Allowed methods
                 .allowCredentials(true)
                 .maxAge(3600); // Cache the preflight response for 1 hour
